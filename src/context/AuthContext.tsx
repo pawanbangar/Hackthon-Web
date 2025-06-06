@@ -23,14 +23,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (token) {
           // Make API call to verify token
           const response = await api.get('/auth/verify-token', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
+            validateStatus: function (status) {
+              return status >= 200 && status < 300; // default
+            },
+            maxRedirects: 0
           });
           
-          if (response.status === 200) {
+          if (response.data && response.data.valid) {
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem('token');
@@ -38,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (error) {
+        console.error('Token verification error:', error);
         localStorage.removeItem('token');
         setIsAuthenticated(false);
       } finally {
@@ -52,20 +52,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Verify token by making an API call
       const response = await api.get('/auth/verify-token', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+        validateStatus: function (status) {
+          return status >= 200 && status < 300; // default
+        },
+        maxRedirects: 0
       });
       
-      if (response.status === 200) {
+      if (response.data && response.data.valid) {
         localStorage.setItem('token', token);
         setIsAuthenticated(true);
       } else {
         throw new Error('Invalid token');
       }
     } catch (error) {
+      console.error('Token verification error:', error);
       throw new Error('Invalid token');
     }
   };
