@@ -32,8 +32,13 @@ const Register = () => {
     try {
       const registerResponse = await authService.register({ username, email, password });
       if(registerResponse.success) {
-        login(registerResponse.data);
-        navigate('/');
+        try {
+          await login(registerResponse.data);
+          navigate('/');
+        } catch (err) {
+          setError('Invalid token received');
+          setLoading(false);
+        }
       } else {
         setError(registerResponse.message || 'An error occurred during registration');
         setLoading(false);

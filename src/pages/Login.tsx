@@ -24,8 +24,13 @@ const Login = () => {
     try {
       const loginResponse = await authService.login({ email, password });
       if(loginResponse.success) {
-        login(loginResponse.data);
-        navigate('/');
+        try {
+          await login(loginResponse.data);
+          navigate('/');
+        } catch (err) {
+          setError('Invalid token received');
+          setLoading(false);
+        }
       } else {
         setError(loginResponse.message || 'An error occurred during login');
         setLoading(false);
