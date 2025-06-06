@@ -41,7 +41,7 @@ const Login = () => {
           <Card className="shadow">
             <Card.Body className="p-3">
               <Card.Title className="text-center mb-4">
-                <h2 className="fw-bold">Sign in to your account</h2>
+                <h2 className="fw-bold">MovieDB</h2>
               </Card.Title>
               {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit}>
