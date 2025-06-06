@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { authService } from '../services/auth';
+// import { authService } from '../services/auth';
 import api from '../utils/axios';
 
 interface AuthContextType {
