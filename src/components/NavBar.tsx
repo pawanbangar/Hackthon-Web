@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 
 function NavBar() {
@@ -16,42 +15,52 @@ function NavBar() {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
-      <Container fluid>
-        <Navbar.Brand as={Link} to="/">Your App</Navbar.Brand>
-        <Navbar.Toggle aria-controls="navbarScroll" />
-        <Navbar.Collapse id="navbarScroll">
-          <Nav
-            className="me-auto my-2 my-lg-0"
-            style={{ maxHeight: '100px' }}
-            navbarScroll
-          >
-            {isAuthenticated ? (
-              <>
-                <Nav.Link as={Link} to="/">Home</Nav.Link>
-                <Button variant="outline-danger" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">Register</Nav.Link>
-              </>
-            )}
-          </Nav>
-          <Form className="d-flex">
+    <>
+      <style>
+        {`
+          .transparent-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+          }
+        `}
+      </style>
+
+      <Navbar
+        expand="lg"
+        className="px-3"
+        style={{
+          zIndex: 2,
+          paddingBottom : "4rem"
+        }}
+      >
+        <Container fluid className="d-flex justify-content-between align-items-center">
+          <Navbar.Brand as={Link} to="/" className="fw-bold fs-4" style={{ color: "white" }}>
+            🎬 RheoFlix
+          </Navbar.Brand>
+          <Form className="d-flex flex-grow-1 justify-content-center mx-3" style={{ maxWidth: "600px" }}>
             <Form.Control
               type="search"
-              placeholder="Search"
-              className="me-2"
+              placeholder="Search for a movie..."
+              className="me-2 w-75 transparent-input"
               aria-label="Search"
+              style={{
+                backgroundColor: "transparent",
+                border: "1px solid rgba(255, 255, 255, 0.4)",
+                color: "white",
+                backdropFilter: "blur(5px)",
+              }}
             />
-            <Button variant="outline-success">Search</Button>
+            <Button variant="outline-light">Search</Button>
           </Form>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          {isAuthenticated ? (
+            <Button variant="outline-danger" onClick={handleLogout}>
+              Logout
+            </Button>
+          ) : (
+            <Link to="/login"><Button variant="outline-light">Login</Button></Link>
+          )}
+        </Container>
+      </Navbar>
+    </>
   );
 }
 
