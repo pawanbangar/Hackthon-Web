@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import api from '../utils/axios';
 import { AxiosError } from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilm } from '@fortawesome/free-solid-svg-icons/faFilm';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -41,7 +43,8 @@ const Login = () => {
           <Card className="shadow">
             <Card.Body className="p-3">
               <Card.Title className="text-center mb-4">
-                <h2 className="fw-bold">MovieDB</h2>
+                <FontAwesomeIcon size='2x' icon={faFilm} className="me-2" />
+                <h2 className="fw-bold mt-3">MovieDB</h2>
               </Card.Title>
               {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit}>
