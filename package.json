@@ -12,6 +12,7 @@
   "dependencies": {
     "-": "^0.0.1",
     "@supabase/supabase-js": "^2.49.10",
+    "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
     "formik": "^2.4.6",
     "react": "^19.1.0",
