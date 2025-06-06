@@ -8,9 +8,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilm } from '@fortawesome/free-solid-svg-icons/faFilm';
 import '../styles/auth.css';
 
-const Login = () => {
+const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -19,20 +21,26 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const loginResponse = await authService.login({ email, password });
-      if(loginResponse.success) {
-        login(loginResponse.data);
+      const registerResponse = await authService.register({ username, email, password });
+      if(registerResponse.success) {
+        login(registerResponse.data);
         navigate('/');
       } else {
-        setError(loginResponse.message || 'An error occurred during login');
+        setError(registerResponse.message || 'An error occurred during registration');
         setLoading(false);
       }
     } catch (err) {
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || 'An error occurred during login');
+        setError(err.response?.data?.message || 'An error occurred during registration');
       } else {
         setError('An unexpected error occurred');
       }
@@ -54,6 +62,17 @@ const Login = () => {
                 {error && <Alert variant="danger">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter your username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
                     <Form.Label>Email address</Form.Label>
                     <Form.Control
                       type="email"
@@ -64,7 +83,7 @@ const Login = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group className="mb-4">
+                  <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                       type="password"
@@ -75,13 +94,24 @@ const Login = () => {
                     />
                   </Form.Group>
 
+                  <Form.Group className="mb-4">
+                    <Form.Label>Confirm Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+
                   <Button 
                     variant="primary" 
                     type="submit" 
                     className="w-100"
                     disabled={loading}
                   >
-                    {loading ? 'Signing in...' : 'Sign in'}
+                    {loading ? 'Creating account...' : 'Create account'}
                   </Button>
                 </Form>
               </Card.Body>
@@ -93,4 +123,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register; 

@@ -1,0 +1,13 @@
+.auth-page {
+  min-height: 100vh;
+  background: url('../assets/geoffrey-moffett-TFRezw7pQwI-unsplash.jpg') no-repeat center center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+} 
