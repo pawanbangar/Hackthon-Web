@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '../services/auth';
+import api from '../utils/axios';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -17,28 +18,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const verifyStoredToken = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const { valid } = await authService.verifyToken(token);
-        if (!valid) {
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-        } else {
-          setIsAuthenticated(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          // Make API call to verify token
+          const response = await api.get('/auth/verify-token', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.status === 200) {
+            setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('token');
+            setIsAuthenticated(false);
+          }
         }
+      } catch (error) {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     verifyStoredToken();
   }, []);
 
   const login = async (token: string) => {
-    const { valid } = await authService.verifyToken(token);
-    if (valid) {
-      localStorage.setItem('token', token);
-      setIsAuthenticated(true);
-    } else {
+    try {
+      // Verify token by making an API call
+      const response = await api.get('/auth/verify-token', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.status === 200) {
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
+      } else {
+        throw new Error('Invalid token');
+      }
+    } catch (error) {
       throw new Error('Invalid token');
     }
   };

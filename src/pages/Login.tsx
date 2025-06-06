@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
@@ -13,8 +13,14 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate('/');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +50,24 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="auth-page">
+        <Container>
+          <Row className="justify-content-center">
+            <Col md={4}>
+              <Card className="shadow auth-card">
+                <Card.Body className="p-4 text-center">
+                  <div>Loading...</div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-page">
