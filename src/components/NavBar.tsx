@@ -1,9 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Navbar from 'react-bootstrap/Navbar';
+import filmIcon from "../assets/film1.svg"
+import searchIcon from "../assets/search.png"
+import vector1 from "../assets/Vector1.svg"
+import vector2 from "../assets/Vector2.svg"
+import Profile from "../assets/Profile.png"
+import { Link, useNavigate } from "react-router-dom";
 
 function NavBar() {
   const { isAuthenticated, logout } = useAuth();
@@ -24,42 +25,22 @@ function NavBar() {
         `}
       </style>
 
-      <Navbar
-        expand="lg"
-        className="px-3"
-        style={{
-          zIndex: 2,
-          paddingBottom : "4rem"
-        }}
-      >
-        <Container fluid className="d-flex justify-content-between align-items-center">
-          <Navbar.Brand as={Link} to="/" className="fw-bold fs-4" style={{ color: "white" }}>
-            🎬 RheoFlix
-          </Navbar.Brand>
-          <Form className="d-flex flex-grow-1 justify-content-center mx-3" style={{ maxWidth: "600px" }}>
-            <Form.Control
-              type="search"
-              placeholder="Search for a movie..."
-              className="me-2 w-75 transparent-input"
-              aria-label="Search"
-              style={{
-                backgroundColor: "transparent",
-                border: "1px solid rgba(255, 255, 255, 0.4)",
-                color: "white",
-                backdropFilter: "blur(5px)",
-              }}
-            />
-            <Button variant="outline-light">Search</Button>
-          </Form>
-          {isAuthenticated ? (
-            <Button variant="outline-danger" onClick={handleLogout}>
-              Logout
-            </Button>
-          ) : (
-            <Link to="/login"><Button variant="outline-light">Login</Button></Link>
-          )}
-        </Container>
-      </Navbar>
+      <div className="navbar-container" style={{ height: "10vh", width: "95vw", position: "absolute", zIndex: "2", top: "0", display: "flex", justifyContent: "center", alignItems: "center" }}>
+					<div className="logo-text" style={{ height: "7vh", width: "50vw", display: "flex", alignItems: "center", gap: "3px" }}>
+						<div className="log">
+							<img src={filmIcon} alt="" />
+						</div>
+						<div className="text" style={{ fontSize: "32px", fontStyle: "italic", fontWeight: 700, lineHeight: "normal", background: "linear-gradient(275deg, #00DDB3 -42.06%, #0857A0 89.98%)", backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+							RHEOflix
+						</div>
+					</div>
+					<div className="search-bar" style={{ height: "7vh", width: "45vw", display: "flex", alignItems: "center", gap: "20px", justifyContent: "end", position: "relative", zIndex: "3" }}>
+						<Link to="/" style={{ color: "white", textDecoration: "none", fontWeight:"900" }}>Home</Link>
+						<Link to="/movie" style={{ color: "white", textDecoration: "none",fontWeight:"900" }}>Movie</Link>
+						<img style={{fontWeight:"900"}} src={searchIcon} />
+						<img src={Profile} style={{ width: "5vh", height: "5vh", borderRadius: "100%", backgroundColor: "white" }} />
+					</div>
+				</div>
     </>
   );
 }
