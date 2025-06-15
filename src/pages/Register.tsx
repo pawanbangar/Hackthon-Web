@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import logo from "../assets/Logo.svg";
 import background from "../assets/geoffrey-moffett-TFRezw7pQwI-unsplash.jpg";
+import { notify } from '../utils/notify';
 
 const Register = () => {
 	const [username, setUsername] = useState('');
@@ -38,18 +39,22 @@ const Register = () => {
 		setLoading(true);
 
 		try {
-			const registerResponse = await authService.register({ username, email, password });
+			const registerResponse = await authService.register({ username, email, password, location: '', languages: '', genres: '' });
 			if (registerResponse.success) {
-				await login(registerResponse.data);
-				navigate('/');
+				notify('Registration successful', 'success');
+				await login(registerResponse.data, true);
+
 			} else {
+				notify(registerResponse.message || 'Registration failed', 'error');
 				setError(registerResponse.message || 'Registration failed');
 			}
 		} catch (err) {
 			if (err instanceof AxiosError) {
+				notify(err.response?.data?.message || 'Registration failed', 'error');
 				setError(err.response?.data?.message || 'Registration failed');
 			} else {
 				setError('Unexpected error');
+				notify('Unexpected error', 'error');
 			}
 		} finally {
 			setLoading(false);

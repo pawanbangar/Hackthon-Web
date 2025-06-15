@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import background from "../assets/geoffrey-moffett-TFRezw7pQwI-unsplash.jpg";
 import logo from "../assets/Logo.svg";
+import { notify } from '../utils/notify';
 
 const Login = () => {
 	const [email, setEmail] = useState('');
@@ -31,15 +32,19 @@ const Login = () => {
 		try {
 			const loginResponse = await authService.login({ email, password });
 			if (loginResponse.success) {
-				await login(loginResponse.data);
-				navigate('/preferences');
+				notify('Login successful', 'success');
+				await login(loginResponse.data, true);
+
 			} else {
+				notify(loginResponse.message || 'Login failed', 'error');
 				setError(loginResponse.message || 'Login failed');
 			}
 		} catch (err) {
 			if (err instanceof AxiosError) {
+				notify(err.response?.data?.message || 'Login failed', 'error');
 				setError(err.response?.data?.message || 'Login failed');
 			} else {
+				notify('Unexpected error', 'error');
 				setError('Unexpected error');
 			}
 		} finally {
@@ -195,7 +200,7 @@ const Login = () => {
 				</div>
 
 				<div style={{ textAlign: 'center', fontSize: '14px' }}>
-					Don’t have an account?{' '}
+					Don't have an account?{' '}
 					<a href="/register" style={{ color: '#007bff', textDecoration: 'none' }}>
 						Sign up now
 					</a>

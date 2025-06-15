@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import background from '../assets/geoffrey-moffett-TFRezw7pQwI-unsplash.jpg';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/auth';
+import { movieService } from '../services/movie';
+import { notify } from '../utils/notify';
+import { useAuth } from '../context/AuthContext';
 
-const genresList = ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Thriller', 'Fantasy'];
+interface Genre {
+	genre_id: number;
+	genre_name: string;
+	genre_poster: string;
+}
+
 const languagesList = ['English', 'Tamil', 'Hindi', 'Telugu', 'Kannada', 'Malayalam'];
 const locationsList = ['Chennai', 'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Kolkata'];
 
@@ -10,15 +19,69 @@ const UserPreferences = () => {
 	const [location, setLocation] = useState('');
 	const [languages, setLanguages] = useState<string[]>([]);
 	const [genres, setGenres] = useState<string[]>([]);
+	const [genresList, setGenresList] = useState<Genre[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
+	const { user, setUser } = useAuth();
+
+	useEffect(() => {
+		// Populate user preferences if they exist
+		if (user) {
+			if (user.location) setLocation(user.location);
+			if (user.languages) setLanguages(user.languages.split(','));
+			if (user.genres) setGenres(user.genres.split(','));
+		}
+	}, [user]);
+
+	useEffect(() => {
+		const fetchGenres = async () => {
+			try {
+				const response = await movieService.getAllGenres();
+				if (response.success) {
+					setGenresList(response.data.genres);
+				} else {
+					notify(response.message || 'Failed to fetch genres', 'error');
+				}
+			} catch (error) {
+				console.error('Error fetching genres:', error);
+				notify('Failed to fetch genres', 'error');
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchGenres();
+	}, []);
 
 	const handleToggle = (item: string, list: string[], setList: (val: string[]) => void) => {
 		setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
 	};
 
-	const handleSubmit = () => {
-		console.log({ location, languages, genres });
-		navigate('/');
+	const handleSubmit = async () => {
+		try {
+			const response = await authService.updatePreferences({
+				location,
+				languages: languages.join(','),
+				genres: genres.join(','),
+			});
+			if (response.success) {
+				notify('Preferences updated successfully!', 'success');
+				if (user) {
+					setUser({
+						...user,
+						location,
+						languages: languages.join(','),
+						genres: genres.join(','),
+					});
+				}
+				navigate('/');
+			} else {
+				notify(response.message || 'Failed to update preferences', 'error');
+			}
+		} catch (error) {
+			console.error('Error updating preferences:', error);
+			notify('An error occurred while updating preferences. Please try again.', 'error');
+		}
 	};
 
 	return (
@@ -97,48 +160,87 @@ const UserPreferences = () => {
 				</div>
 				<div style={{ marginBottom: '32px' }}>
 					<label style={{ fontWeight: 600, fontSize: '15px' }}>Favorite Genres</label>
-					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-						{genresList.map(genre => (
-							<div
-								key={genre}
-								onClick={() => handleToggle(genre, genres, setGenres)}
-								style={{
-									padding: '8px 16px',
-									borderRadius: '20px',
-									border: `2px solid ${genres.includes(genre) ? '#ff5c5c' : '#ccc'}`,
-									backgroundColor: genres.includes(genre) ? '#ff5c5c' : '#f2f2f2',
-									color: genres.includes(genre) ? '#fff' : '#444',
-									cursor: 'pointer',
-									transition: '0.3s',
-									fontSize: '14px',
-									fontWeight: 500,
-								}}
-							>
-								{genre}
-							</div>
-						))}
-					</div>
+					{isLoading ? (
+						<div style={{ textAlign: 'center', padding: '20px' }}>Loading genres...</div>
+					) : (
+						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+							{genresList.map(genre => (
+								<div
+									key={genre.genre_id}
+									onClick={() => handleToggle(genre.genre_name, genres, setGenres)}
+									style={{
+										padding: '8px 16px',
+										borderRadius: '20px',
+										border: `2px solid ${genres.includes(genre.genre_name) ? '#ff5c5c' : '#ccc'}`,
+										backgroundColor: genres.includes(genre.genre_name) ? '#ff5c5c' : '#f2f2f2',
+										color: genres.includes(genre.genre_name) ? '#fff' : '#444',
+										cursor: 'pointer',
+										transition: '0.3s',
+										fontSize: '14px',
+										fontWeight: 500,
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+									}}
+								>
+									<img
+										src={genre.genre_poster}
+										alt={genre.genre_name}
+										style={{
+											width: '24px',
+											height: '24px',
+											borderRadius: '4px',
+											objectFit: 'cover',
+										}}
+									/>
+									{genre.genre_name}
+								</div>
+							))}
+						</div>
+					)}
 				</div>
-				<button
-					onClick={handleSubmit}
-					style={{
-						width: '100%',
-						padding: '14px',
-						background: '#1e88e5',
-						color: '#fff',
-						border: 'none',
-						borderRadius: '10px',
-						fontWeight: 'bold',
-						fontSize: '16px',
-						cursor: 'pointer',
-						boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-						transition: 'background 0.3s ease',
-					}}
-					onMouseOver={(e) => (e.currentTarget.style.background = '#1565c0')}
-					onMouseOut={(e) => (e.currentTarget.style.background = '#1e88e5')}
-				>
-					Continue
-				</button>
+				<div style={{ display: 'flex', gap: '12px' }}>
+					<button
+						onClick={() => navigate('/')}
+						style={{
+							flex: 1,
+							padding: '14px',
+							background: '#f5f5f5',
+							color: '#666',
+							border: 'none',
+							borderRadius: '10px',
+							fontWeight: 'bold',
+							fontSize: '16px',
+							cursor: 'pointer',
+							boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+							transition: 'all 0.3s ease',
+						}}
+						onMouseOver={(e) => (e.currentTarget.style.background = '#e0e0e0')}
+						onMouseOut={(e) => (e.currentTarget.style.background = '#f5f5f5')}
+					>
+						Skip
+					</button>
+					<button
+						onClick={handleSubmit}
+						style={{
+							flex: 1,
+							padding: '14px',
+							background: '#1e88e5',
+							color: '#fff',
+							border: 'none',
+							borderRadius: '10px',
+							fontWeight: 'bold',
+							fontSize: '16px',
+							cursor: 'pointer',
+							boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+							transition: 'background 0.3s ease',
+						}}
+						onMouseOver={(e) => (e.currentTarget.style.background = '#1565c0')}
+						onMouseOut={(e) => (e.currentTarget.style.background = '#1e88e5')}
+					>
+						Continue
+					</button>
+				</div>
 			</div>
 		</div>
 	);

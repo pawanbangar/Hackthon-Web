@@ -1,16 +1,27 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import logo from "../assets/Logo.svg";
-import { faSearch, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faSpinner, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import SearchResultsModal from "../pages/SearchModal";
 import type { Movie } from "../pages/Home";
 import api from "../utils/axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { notify } from "../utils/notify";
 
 const NavBar = () => {
 	const [showSearchModal, setShowSearchModal] = useState(false);
 	const [allMovies, setAllMovies] = useState<Movie[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [initialSearchText, setInitialSearchText] = useState("");
+	const navigate = useNavigate();
+	const { logout } = useAuth();
+
+	const handleLogout = () => {
+		logout();
+		notify('Logged out successfully', 'success');
+		navigate('/login');
+	};
 
 	const fetchAllMovies = async () => {
 		setLoading(true);
@@ -107,6 +118,9 @@ const NavBar = () => {
 					</div>
 
 					<div
+						onClick={() => {
+							navigate('/preferences');
+						}}
 						style={{
 							width: "32px",
 							height: "32px",
@@ -123,6 +137,27 @@ const NavBar = () => {
 						}}
 					>
 						P
+					</div>
+
+					<div
+						onClick={handleLogout}
+						style={{
+							width: "32px",
+							height: "32px",
+							borderRadius: "50%",
+							backgroundColor: "#ff4444",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							color: "white",
+							cursor: "pointer",
+							border: "2px solid white",
+							transition: "all 0.3s ease",
+						}}
+						onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#ff0000")}
+						onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#ff4444")}
+					>
+						<FontAwesomeIcon icon={faSignOutAlt} />
 					</div>
 				</div>
 			</div>
