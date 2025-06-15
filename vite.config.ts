@@ -8,13 +8,17 @@ export default defineConfig(({ mode }) => {
     define: {
       "process.env": env,
     },
-    plugins: [react(), // disable cache if linting doesn't update
-    ],
+    plugins: [react()],
     server: {
       allowedHosts: [
         'aef7-115-99-16-246.ngrok-free.app',
         '.ngrok-free.app' // This will allow all ngrok-free.app subdomains
-      ]
+      ],
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+      }
     }
   };
 });

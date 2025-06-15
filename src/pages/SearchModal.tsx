@@ -30,7 +30,7 @@ const SearchResultsModal = ({
 		setLoading(true);
 		try {
 			const res = await api.get(
-				`/movie/search?query=${search}&page=${customPage}&page_size=${pageSize}`
+				`/vector/search?query=${search}&page=${customPage}&page_size=${pageSize}`
 			);
 			const newMovies: Movie[] = res.data.data.movies;
 			setResults(newMovies);

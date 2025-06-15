@@ -5,9 +5,12 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   },
-  withCredentials: true
+  withCredentials: false // Changed to false since we're using token-based auth
 });
 
 // Request interceptor for adding auth token
