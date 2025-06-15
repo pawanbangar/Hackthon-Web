@@ -1,294 +1,609 @@
-import { useEffect, useState } from "react";
-import vector1 from "../assets/Vector1.svg"
-import vector2 from "../assets/Vector2.svg"
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import NavBar from "../components/NavBar";
+import StarRating from "./Stars";
+import play from "../assets/Vector 1.png";
+import MovieCard from "./MovieCards";
+import bgImage from "../assets/Copilot_20250614_002000.png"
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import RecommendedCard from "./RecommendedCard";
+import { motion } from "framer-motion";
+import GenreCards from "./GenreCards";
+import { MoviesGenreModal } from "./MoviesGenreModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import MovieDetailModal from "./MovieDetailModal";
 
-export type Movie = {
-	id: number;
-	title: string;
-	description: string;
-	image: string;
-	releaseDate: string;
-	rating: string;
-	genre : string
+export interface GenreDetails {
+	genre_id: number;
+	genre_name: string;
+	genre_poster: string
 }
 
-export const rawMovies = [
-	{
-		id: 1,
-		title: "friday after next",
-		description: "When a burglar robs Craig and D-Day on Christmas Eve, the penniless cousins must acquire rent money quickly. Chaos ensues as they get hired as a security guard and stumble into trouble.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/10426.jpg",
-		releaseDate: "2002-11-22",
-		rating: "5.8",
-		genre : "Action"
-	},
-	{
-		id: 2,
-		title: "Interstellar",
-		description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/31357.jpg",
-		releaseDate: "2014-11-07",
-		rating: "8.6",
-		genre : "Action"
-	},
-	{
-		id: 3,
-		title: "Spider-Man: No Way Home",
-		description: "Peter Parker seeks help from Doctor Strange when his identity is revealed, but things spiral out of control.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/10007.jpg",
-		releaseDate: "2021-12-17",
-		rating: "8.2",
-		genre : "Drama"
-	},
-	{
-		id: 4,
-		title: "The Batman",
-		description: "Batman uncovers corruption in Gotham while pursuing the Riddler, a sadistic serial killer.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/11862.jpg",
-		releaseDate: "2022-03-04",
-		rating: "7.9",
-		genre : "Drama"
-	},
-	{
-		id: 5,
-		title: "Doctor Strange",
-		description: "A former neurosurgeon embarks on a journey of healing and becomes the Sorcerer Supreme.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/9087.jpg",
-		releaseDate: "2016-11-04",
-		rating: "7.5",
-		genre : "Drama"
-	},
-	{
-		id: 6,
-		title: "Black Panther",
-		description: "T'Challa returns to Wakanda to take his place as king but faces a formidable enemy from the past.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/524.jpg",
-		releaseDate: "2018-02-16",
-		rating: "7.3",
-		genre : "Horror"
-		
-	},
-	{
-		id: 8,
-		title: "Iron Man",
-		description: "After being held captive, billionaire engineer Tony Stark creates a unique weaponized suit of armor to fight evil.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/8012.jpg",
-		releaseDate: "2008-05-02",
-		rating: "7.9",
-		genre : "Horror"
-	},
-	{
-		id: 9,
-		title: "Avatar",
-		description: "A paraplegic Marine dispatched to Pandora becomes torn between following orders and protecting an alien civilization.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/9691.jpg",
-		releaseDate: "2009-12-18",
-		rating: "7.8",
-		genre : "Action"
-	},
-	{
-		id: 10,
-		title: "The Dark Knight",
-		description: "Batman sets out to dismantle the remaining criminal organizations in Gotham, but is soon faced with chaos unleashed by the Joker.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/451.jpg",
-		releaseDate: "2008-07-18",
-		rating: "9.0",
-		genre : "Horror"
-	},
-	{
-		id: 12,
-		title: "Captain America: Civil War",
-		description: "Political pressure mounts to install a system of accountability when the actions of the Avengers lead to collateral damage.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/1710.jpg",
-		releaseDate: "2016-05-06",
-		rating: "7.8",
-		genre : "Action"
-	},
-	{
-		id: 13,
-		title: "Shang-Chi and the Legend of the Ten Rings",
-		description: "Shang-Chi must confront the past he thought he left behind when he is drawn into the web of the mysterious Ten Rings organization.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/9091.jpg",
-		releaseDate: "2021-09-03",
-		rating: "7.7",
-		genre : "Sci-Fi"
-	},
-	{
-		id: 14,
-		title: "The Flash",
-		description: "Barry Allen uses his super speed to travel back in time to change the events of the past, but his attempt alters the future.",
-		image: "https://5aca-27-5-183-17.ngrok-free.app/posters/8844.jpg",
-		releaseDate: "2023-06-16",
-		rating: "6.9",
-		genre : "Sci-Fi"
-	}
-];
+export interface Genre {
+	genre_id: number;
+	genre: GenreDetails;
+}
 
-
+export interface Movie {
+	movie_id: number;
+	title: string;
+	poster_path: string;
+	release_date: string;
+	budget: number;
+	revenue: number;
+	runtime: number;
+	overview: string;
+	rating: number;
+	cast: string[];
+	genres: Genre[];
+}
 
 const Home = () => {
-	const [selectedMovie, setSelectedMovie] = useState(rawMovies[0]);
-	const [currentPage, setCurrentPage] = useState(1);
-	const [displayedMovies, setDisplayedMovies] = useState<Movie[]>([]);
+	const [movies, setMovies] = useState<Movie[]>([]);
+	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
+	const [genres, setGenres] = useState<GenreDetails[]>([]);
+	const [startIndex, setStartIndex] = useState(0);
+	const [isLoading, setIsLoading] = useState(false);
+	const [selectedGenre, setSelectedGenre] = useState<GenreDetails | null>(null);
+	const [showFullOverview, setShowFullOverview] = useState(false);
+	const [genreMovies, setGenreMovies] = useState<Movie[]>([]);
+	const [genrePage, setGenrePage] = useState(1);
+	const [genreSearchInput, setGenreSearchInput] = useState("");
+	const genrePerPage = 20;
+	const [selectedRecommendedMovie, setSelectedRecommendedMovie] = useState<Movie | null>(null);
+	const [selectedGenereMovie, setSelectedGenereMovie] = useState<Movie | null>(null);
+	const [genreIsLoading, setGenreIsLoading] = useState(false);
+
+	const visibleCount = 6;
+
+	const getAllMoviesBasedOnGenres = async () => {
+		setGenreIsLoading(true);
+		try {
+			if (selectedGenre?.genre_id) {
+				const query = genreSearchInput.trim()
+					? `&query=${genreSearchInput.trim()}`
+					: "";
+				const res = await axios.get(
+					`https://hackethonbe.onrender.com/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
+				);
+				setGenreMovies(res.data.data.movies);
+			}
+		} catch (error) {
+			console.error("Error fetching movies:", error);
+		}
+		setGenreIsLoading(false);
+	};
+
+	const getAllMovies = async () => {
+		setIsLoading(true)
+		try {
+			const res = await axios.get(`https://hackethonbe.onrender.com/movie?page=1&page_size=50`);
+			setMovies(res.data.data.movies);
+			setSelectedMovie(res.data.data.movies[3])
+		} catch (error) {
+			console.error("Error fetching movies:", error);
+		}
+		setIsLoading(false)
+	};
+
+	const getAllGenre = async () => {
+		try {
+			const res = await axios.get(`https://hackethonbe.onrender.com/movie/genres/all`);
+			setGenres(res.data.data.genres);
+		} catch (error) {
+			console.error("Error fetching movies:", error);
+		}
+	};
+
 
 	useEffect(() => {
-		const end = currentPage * 6;
-		if (currentPage == 1) {
-			setDisplayedMovies(rawMovies.slice(0, end));
-		} else {
-			setDisplayedMovies(rawMovies.slice((currentPage * 6) - 6, end));
+		getAllMovies();
+		getAllGenre();
+	}, []);
+
+	useEffect(() => {
+		if (selectedGenre) {
+			getAllMoviesBasedOnGenres();
 		}
-	}, [currentPage]);
+	}, [genrePage, selectedGenre, genreSearchInput]);
+
+	const handlePrev = () => {
+		const newIndex = Math.max(startIndex - visibleCount, 0);
+		setStartIndex(newIndex);
+		const randomOffset = Math.floor(Math.random() * 5);
+		setSelectedMovie(movies[newIndex + randomOffset]);
+	};
+
+	const handleNext = () => {
+		const newIndex = Math.min(startIndex + visibleCount, movies.length - visibleCount);
+		setStartIndex(newIndex);
+		const randomOffset = Math.floor(Math.random() * 5);
+		setSelectedMovie(movies[newIndex + randomOffset]);
+	};
+
+	const overview = selectedMovie?.overview || "";
+	const isLong = overview.length > 90;
+	const displayedText = showFullOverview || !isLong ? overview : overview.slice(0, 90) + "...";
+
+
+	const titleLength = selectedMovie?.title.length ?? 0
+
+	const recommendedRef = useRef(null);
+	const popularRef = useRef(null);
+
+
+	useEffect(() => {
+		if (selectedGenre) {
+			setGenrePage(1);
+		}
+	}, [selectedGenre]);
+
+	useEffect(() => {
+		if (selectedGenre) {
+			getAllMoviesBasedOnGenres();
+		}
+	}, [genrePage, selectedGenre]);
+
 
 	return (
 		<>
-			<style>
-				{`
-          .transparent-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-          }
-        `}
-			</style>
-			<div className="bg-container" style={{ width: "100vw", minHeight: "100vh", position: "relative", zIndex: "1", display: "flex", justifyContent: "center", alignItems: "center", backgroundImage: `url(${selectedMovie.image})`, backgroundSize: "cover", backgroundPosition: "center", overflow: "hidden" }}>
+			<div
+				style={{
+					position: "relative",
+					width: "100vw",
+					minHeight: "100vh",
+					background: `url(${bgImage})`,
+					backgroundRepeat: "no-repeat",
+					backgroundSize: "cover"
+				}}
+			>
 				<div
 					style={{
 						position: "absolute",
-						top: 0,
+						bottom: 0,
 						left: 0,
 						width: "100%",
-						height: "100%",
-						background: "linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8))",
-						zIndex: 1,
+						height: "26%",
+						background: `linear-gradient(to bottom, rgba(0,0,0,0) ${Math.min(scrollY, 300)}px, black 100%)`,
+						transition: "all 0.3s ease-in-out",
+						zIndex: 0,
+						pointerEvents: "none",
 					}}
 				/>
-				<NavBar/>
-				<div className="content-container" style={{ height: "50vh", width: "95vw", position: "absolute", zIndex: "2", top: "10%", display: "flex", alignItems: "center" }}>
-					<div className="content" style={{ height: "35vh", width: "40vw", paddingLeft: "10px", color: "white" }}>
-						<div className="col-lg-12 col-md-12">
-							<h1 className="fw-bold display-5">{selectedMovie.title}</h1>
-							<p className="lead">{selectedMovie.description}</p>
-							<p className="mt-3">
-								<strong>Release Date:</strong> {selectedMovie.releaseDate}
-							</p>
-							<p>
-								<strong>IMDb Rating:</strong> {selectedMovie.rating} / 10
-							</p>
-							<button className="btn btn-warning mt-3 px-4">Preview</button>
+				{isLoading ? (
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							height: "100vh",
+							width: "100vw",
+							position: "fixed",
+							top: 0,
+							left: 0,
+							backgroundColor: "#000",
+							zIndex: 9999,
+						}}
+					>
+						<div style={{ position: "relative", width: "200px", height: "200px" }}>
+							<DotLottieReact
+								src="https://lottie.host/0dd37147-614e-4f55-a708-43db23c5831a/0XHUh8zquF.lottie"
+								loop
+								autoplay
+								style={{ width: "100%", height: "100%" }}
+							/>
+							<style>
+								{`
+									@keyframes blink {
+									0%, 100% { opacity: 1; }
+									50% { opacity: 0.2; }
+									}
+								`}
+							</style>
+							<div
+								style={{
+									position: "absolute",
+									top: "50%",
+									left: "50%",
+									transform: "translate(-50%, -50%)",
+									fontWeight: "bold",
+									color: "white",
+									fontSize: "12px",
+									animation: "blink 3s infinite"
+								}}
+							>
+								LOADING
+							</div>
 						</div>
 					</div>
-				</div>
-				<div
-					className="card-container"
-					style={{
-						height: "40vh",
-						width: "95vw",
-						position: "absolute",
-						zIndex: "2",
-						bottom: "0",
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-					}}
-				>
-					<button
-						onClick={() => setCurrentPage((prev) => prev - 1)}
-						style={{
-							position: "absolute",
-							left: "10px",
-							bottom: "50%",
-							transform: "translateY(50%)",
-							zIndex: 3,
-							backgroundColor: "rgba(255, 255, 255, 0.2)",
-							border: "none",
-							borderRadius: "8px",
-							cursor: "pointer",
-							fontWeight: "bold",
-							padding: "8px",
-							backdropFilter: "blur(6px)",
-							WebkitBackdropFilter: "blur(6px)",
-							boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
-							transition: "background-color 0.3s ease",
-						}}
-						disabled={currentPage === 1}
-					>
-						<img src={vector1} alt="Previous" />
-					</button>
+				) :
+					<>
+						<NavBar />
 
-					<div
-						className="content"
-						style={{
-							height: "45vh",
-							maxWidth: "95vw",
-							overflowX: "auto",
-							whiteSpace: "nowrap",
+						<motion.div initial={{ opacity: 0, y: 30 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.6 }} className="content" style={{ width: "60vw", paddingTop: "3%", paddingLeft: "3%", display: "flex", flexDirection: "column", gap: "20px" }}>
+							<div style={{
+								color: "#F7F7F7",
+								fontSize: titleLength > 24 ? "40px" : "72px",
+								fontWeight: 700,
+							}}>
+								{selectedMovie?.title}
+							</div>
+							<div style={{ display: "flex", alignItems: "center", color: "white" }}>
+								<StarRating rating={selectedMovie?.rating ?? 10} />
+								{selectedMovie?.genres && selectedMovie.genres.length > 0 && (
+									<div style={{ paddingLeft: "10px" }}>
+										<span style={{ marginRight: "10px" }}>|</span>
+										{selectedMovie.genres.map(g => g.genre.genre_name).join(" . ")}
+									</div>
+								)}
+							</div>
+							<div style={{ color: "white", width: showFullOverview ? "70vw" : "20vw", overflow: "hidden", transform: "0.5s ease-in-out" }}>
+								{displayedText}
+								{isLong && (
+									<span
+										onClick={() => setShowFullOverview(!showFullOverview)}
+										style={{ color: "#F5B82B", cursor: "pointer", marginLeft: "6px" }}
+									>
+										{showFullOverview ? "See less" : "See more"}
+									</span>
+								)}
+							</div>
+							<div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+								<button style={{
+									background: "transparent", width: "144px", height: "48px",
+									color: "#F5C51C", border: "2px solid #F5C51C", borderRadius: "8px"
+								}}>
+									Watch Trailer
+								</button>
+								<button style={{
+									background: "rgb(118, 118, 116)", width: "144px", height: "48px",
+									color: "white", border: "2px solid white", borderRadius: "8px",
+									display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"
+								}}>
+									<img src={play} style={{ width: "15px", height: "15px" }} alt="play" />
+									Watch Now
+								</button>
+							</div>
+						</motion.div>
+						<div style={{
 							display: "flex",
 							alignItems: "center",
-							gap: "30px",
-							paddingLeft: "40px",
-							paddingRight: "40px",
-							scrollbarWidth: "none",
-							scrollSnapType: "x mandatory",
+							padding: "30px",
+							gap: "10px",
+							width: "100%",
+							overflow: "hidden",
+							justifyContent: "center"
+						}}>
+							<button
+								style={{
+									background: "#F5B82B",
+									color: "black",
+									padding: "10px 15px",
+									borderRadius: "8px",
+									border: "none",
+									cursor: "pointer",
+									fontSize: "18px",
+									fontWeight: "900"
+								}}
+								onClick={handlePrev}
+								disabled={!(startIndex > 0)}
+							>
+								←
+							</button>
+							<div
+								style={{
+									display: "flex",
+									gap: "15px",
+									overflow: "hidden",
+									width: "calc(260px * 6 + 12px * 5)",
+									transition: "transform 0.5s ease-in-out",
+									alignItems: "center",
+									justifyContent: "center"
+								}}
+							>
+								{movies.slice(startIndex, startIndex + visibleCount).map((movie, index) => (
+									<motion.div
+										key={movie.movie_id}
+										style={{ flexShrink: 0 }}
+										initial={{ opacity: 0, scale: 0.95, y: 20 }}
+										animate={{ opacity: 1, scale: 1, y: 0 }}
+										transition={{ delay: index * 0.1, duration: 0.4 }}
+									>
+										<MovieCard
+											poster={movie.poster_path}
+											isTop={true}
+											isSelected={selectedMovie?.movie_id === movie.movie_id}
+											setSelectedMovie={setSelectedMovie}
+											movie={movie}
+										/>
+									</motion.div>
+								))}
+							</div>
+							<button
+								style={{
+									background: "#F5B82B",
+									color: "black",
+									padding: "10px 15px",
+									borderRadius: "8px",
+									border: "none",
+									cursor: "pointer",
+									fontSize: "18px",
+									fontWeight: "900"
+								}}
+								onClick={handleNext}
+								disabled={!(startIndex + visibleCount < movies.length)}
+							>
+								→
+							</button>
+						</div>
+					</>
+				}
+			</div>
+			<div style={{ backgroundColor: "black" }}>
+				<motion.div
+					ref={recommendedRef}
+					style={{ padding: "30px", color: "white" }}
+					initial={{ opacity: 0, y: 50 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+				>
+					<motion.h2
+						initial={{ opacity: 0, x: -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.4 }}
+						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+					>
+						Recommended for You
+					</motion.h2>
+					<div
+						style={{
+							display: "flex",
+							gap: "15px",
+							overflowX: "auto",
+							overflowY: "hidden",
+							paddingBottom: "10px",
+							flexWrap: "nowrap",
+							scrollBehavior: "smooth",
+							scrollbarWidth: "none"
 						}}
 					>
-						{displayedMovies.map((movie, idx) => (
-							<img
-								key={`${movie.id}-${idx}`}
-								src={movie.image}
-								alt={movie.title}
-								onClick={() => setSelectedMovie(movie)}
-								className={`rounded shadow ${selectedMovie.image === movie.image ? "border border-warning border-3" : ""}`}
-								style={{
-									width: "186px",
-									height: "244px",
-									objectFit: "cover",
-									cursor: "pointer",
-									transition: "transform 0.3s",
-									flex: "0 0 auto",
-									scrollSnapAlign: "start",
-									transform: selectedMovie.image === movie.image ? "scale(1.2)" : "scale(1)",
-									zIndex: selectedMovie.image === movie.image ? 20 : 10,
-									position: selectedMovie.image === movie.image ? "relative" : "static",
-									filter: selectedMovie && selectedMovie.image !== movie.image ? "blur(1px)" : "none",
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.transform = "scale(1.2)";
-									e.currentTarget.style.zIndex = "10";
-									e.currentTarget.style.position = "relative";
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.transform = selectedMovie.image !== movie.image ? "scale(1)" : "scale(1.2)";
-									e.currentTarget.style.zIndex = selectedMovie.image !== movie.image ? "1" : "10";
-									e.currentTarget.style.position = selectedMovie.image !== movie.image ? "static" : "relative";
-								}}
-							/>
+						{movies.map((movie, index) => (
+							<motion.div
+								key={`rec-${movie.movie_id}`}
+								initial={{ opacity: 0, x: 50 }}
+								whileInView={{ opacity: 1, x: 0 }}
+								transition={{ delay: index * 0.05, duration: 0.3 }}
+							>
+								<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+							</motion.div>
 						))}
 					</div>
-					<button
-						onClick={() => setCurrentPage((prev) => prev + 1)}
-						style={{
-							position: "absolute",
-							right: "10px",
-							bottom: "50%",
-							transform: "translateY(50%)",
-							zIndex: 3,
-							border: "none",
-							borderRadius: "8px",
-							cursor: "pointer",
-							fontWeight: "bold",
-							backdropFilter: "blur(6px)",
-							WebkitBackdropFilter: "blur(6px)",
-							boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
-							transition: "background-color 0.3s ease",
-							backgroundColor: "rgba(255, 255, 255, 0.2)",
-							padding: "8px",
-						}}
-						disabled={!(currentPage * 6 <= rawMovies.length)}
+				</motion.div>
+				{genres &&
+					<motion.div
+						ref={popularRef}
+						style={{ padding: "30px", color: "white" }}
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}
 					>
-						<img src={vector2} />
-					</button>
-				</div>
+						<motion.h2
+							initial={{ opacity: 0, x: -20 }}
+							whileInView={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.4 }}
+							style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+						>
+							Genres
+						</motion.h2>
+						<div
+							style={{
+								display: "flex",
+								gap: "15px",
+								overflowX: "auto",
+								overflowY: "hidden",
+								padding: "10px",
+								flexWrap: "nowrap",
+								scrollBehavior: "smooth",
+								justifyContent: genres.length * 150 < window.innerWidth ? "center" : "flex-start",
+								alignItems: "center",
+								scrollbarWidth: "none"
+							}}
+						>
+
+							{genres.map((genre, index) => (
+								<motion.div
+									key={`pop-${genre.genre_id}`}
+									initial={{ opacity: 0, x: 50 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									transition={{ delay: index * 0.05, duration: 0.3 }}
+								>
+									<GenreCards genre={genre} onClick={setSelectedGenre} />
+								</motion.div>
+							))}
+						</div>
+					</motion.div>
+				}
 			</div>
+			{selectedGenre && (
+				<MoviesGenreModal onClose={() => setSelectedGenre(null)}>
+					<div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
+						<div
+							style={{
+								position: "sticky",
+								top: 0,
+								zIndex: 10,
+								backgroundColor: "black",
+								display: "flex",
+								justifyContent: "space-between",
+								alignItems: "center",
+								padding: "20px",
+								gap: "20px",
+								borderBottom: "1px solid #333",
+								flexWrap: "wrap",
+							}}
+						>
+							<div
+								style={{
+									color: "white",
+									fontSize: "32px",
+									fontWeight: "bold",
+									whiteSpace: "nowrap",
+								}}
+							>
+								{selectedGenre.genre_name} Movies
+							</div>
+							<div style={{ position: "relative", width: "300px" }}>
+								<FontAwesomeIcon
+									icon={faSearch}
+									style={{
+										position: "absolute",
+										top: "50%",
+										left: "15px",
+										transform: "translateY(-50%)",
+										color: "#fff",
+									}}
+								/>
+								<input
+									type="text"
+									placeholder="Search movies..."
+									value={genreSearchInput}
+									onChange={(e) => setGenreSearchInput(e.target.value)}
+									style={{
+										padding: "10px 40px",
+										width: "100%",
+										maxWidth: "300px",
+										borderRadius: "8px",
+										border: "1px solid white",
+										outline: "none",
+										backgroundColor: "#111",
+										color: "white",
+									}}
+								/>
+							</div>
+						</div>
+						<div
+							style={{
+								flex: 1,
+								position: "relative",
+								overflowY: "auto",
+								overflowX: "hidden",
+								padding: "20px",
+								scrollbarWidth:"none"
+							}}
+						>
+							{genreIsLoading && (
+								<div
+									style={{
+										position: "absolute",
+										top: 0,
+										left: 0,
+										width: "100%",
+										height: "100%",
+										backgroundColor: "rgba(0, 0, 0, 0.85)",
+										display: "flex",
+										justifyContent: "center",
+										alignItems: "center",
+										zIndex: 10,
+									}}
+								>
+									<div style={{ position: "relative", width: "180px", height: "180px" }}>
+										<DotLottieReact
+											src="https://lottie.host/0dd37147-614e-4f55-a708-43db23c5831a/0XHUh8zquF.lottie"
+											loop
+											autoplay
+											style={{ width: "100%", height: "100%" }}
+										/>
+										<div
+											style={{
+												position: "absolute",
+												top: "50%",
+												left: "50%",
+												transform: "translate(-50%, -50%)",
+												fontWeight: "bold",
+												color: "white",
+												fontSize: "12px",
+												animation: "blink 3s infinite",
+											}}
+										>
+											LOADING
+										</div>
+									</div>
+								</div>
+							)}
+							{!genreIsLoading && (
+								<div
+									style={{
+										display: "flex",
+										flexWrap: "wrap",
+										gap: "16px",
+										justifyContent: "center",
+									}}
+								>
+									{genreMovies.map((movie, index) => (
+										<motion.div
+											key={`rec-${movie.movie_id}`}
+											initial={{ opacity: 0, x: 50 }}
+											whileInView={{ opacity: 1, x: 0 }}
+											transition={{ delay: index * 0.05, duration: 0.3 }}
+										>
+											<RecommendedCard movie={movie} onClick={() => setSelectedGenereMovie(movie)}/>
+										</motion.div>
+									))}
+								</div>
+							)}
+						</div>
+						<div
+							style={{
+								marginTop: "10px",
+								marginBottom: "20px",
+								display: "flex",
+								justifyContent: "center",
+								gap: "10px",
+							}}
+						>
+							<button
+								style={{
+									background: "#F5B82B",
+									color: "black",
+									padding: "10px 15px",
+									borderRadius: "8px",
+									border: "none",
+									cursor: "pointer",
+									fontWeight: "bold",
+								}}
+								onClick={() => setGenrePage((prev) => Math.max(prev - 1, 1))}
+								disabled={genrePage === 1}
+							>
+								← Prev
+							</button>
+							<button
+								style={{
+									background: "#F5B82B",
+									color: "black",
+									padding: "10px 15px",
+									borderRadius: "8px",
+									border: "none",
+									cursor: "pointer",
+									fontWeight: "bold",
+								}}
+								onClick={() => setGenrePage((prev) => prev + 1)}
+								disabled={genreMovies.length < genrePerPage}
+							>
+								Next →
+							</button>
+						</div>
+					</div>
+				</MoviesGenreModal>
+			)}
+			{selectedRecommendedMovie && (
+				<MovieDetailModal movie={selectedRecommendedMovie} onClose={() => setSelectedRecommendedMovie(null)} />
+			)}
+			{selectedGenereMovie && (
+				<MovieDetailModal movie={selectedGenereMovie} onClose={() => setSelectedGenereMovie(null)} />
+			)}
 		</>
 	);
 };
