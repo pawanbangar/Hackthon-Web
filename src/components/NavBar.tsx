@@ -3,9 +3,9 @@ import logo from "../assets/Logo.svg";
 import { faSearch, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import SearchResultsModal from "../pages/SearchModal";
-import axios from "axios";
 import type { Movie } from "../pages/Home";
 import { config } from "../config";
+import api from "../utils/axios";
 
 const NavBar = () => {
 	const [showSearchModal, setShowSearchModal] = useState(false);
@@ -16,8 +16,8 @@ const NavBar = () => {
 	const fetchAllMovies = async () => {
 		setLoading(true);
 		try {
-			const res = await axios.get(
-				`${config.backendUrl}/movie?page=1&page_size=20`
+			const res = await api.get(
+				`/movie?page=1&page_size=20`
 			);
 			setAllMovies(res.data.data.movies);
 		} catch (error) {

@@ -4,10 +4,10 @@ import RecommendedCard from "./RecommendedCard";
 import type { Movie } from "./Home";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import MovieDetailModal from "./MovieDetailModal";
 import { config } from "../config";
+import api from "../utils/axios";
 
 const SearchResultsModal = ({
 	movies,
@@ -29,8 +29,8 @@ const SearchResultsModal = ({
 	const fetchMovies = async (customPage = page, search = searchInput) => {
 		setLoading(true);
 		try {
-			const res = await axios.get(
-				`${config.backendUrl}/movie/search?query=${search}&page=${customPage}&page_size=${pageSize}`
+			const res = await api.get(
+				`/movie/search?query=${search}&page=${customPage}&page_size=${pageSize}`
 			);
 			const newMovies: Movie[] = res.data.data.movies;
 			setResults(newMovies);

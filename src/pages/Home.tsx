@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import NavBar from "../components/NavBar";
 import StarRating from "./Stars";
 import play from "../assets/Vector 1.png";
@@ -14,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import MovieDetailModal from "./MovieDetailModal";
 import { config } from "../config";
+import api from "../utils/axios";
 
 export interface GenreDetails {
 	genre_id: number;
@@ -65,8 +65,8 @@ const Home = () => {
 				const query = genreSearchInput.trim()
 					? `&query=${genreSearchInput.trim()}`
 					: "";
-				const res = await axios.get(
-					`${config.backendUrl}/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
+				const res = await api.get(
+					`/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
 				);
 				setGenreMovies(res.data.data.movies);
 			}
@@ -79,7 +79,7 @@ const Home = () => {
 	const getAllMovies = async () => {
 		setIsLoading(true)
 		try {
-			const res = await axios.get(`${config.backendUrl}/movie?page=1&page_size=50`);
+			const res = await api.get(`/movie?page=1&page_size=50`);
 			setMovies(res.data.data.movies);
 			setSelectedMovie(res.data.data.movies[3])
 		} catch (error) {
@@ -90,7 +90,7 @@ const Home = () => {
 
 	const getAllGenre = async () => {
 		try {
-			const res = await axios.get(`${config.backendUrl}/movie/genres/all`);
+			const res = await api.get(`/movie/genres/all`);
 			setGenres(res.data.data.genres);
 		} catch (error) {
 			console.error("Error fetching movies:", error);
