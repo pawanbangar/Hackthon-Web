@@ -13,6 +13,7 @@ import { MoviesGenreModal } from "./MoviesGenreModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import MovieDetailModal from "./MovieDetailModal";
+import { config } from "../config";
 
 export interface GenreDetails {
 	genre_id: number;
@@ -65,7 +66,7 @@ const Home = () => {
 					? `&query=${genreSearchInput.trim()}`
 					: "";
 				const res = await axios.get(
-					`https://hackethonbe.onrender.com/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
+					`${config.backendUrl}/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
 				);
 				setGenreMovies(res.data.data.movies);
 			}
@@ -78,7 +79,7 @@ const Home = () => {
 	const getAllMovies = async () => {
 		setIsLoading(true)
 		try {
-			const res = await axios.get(`https://hackethonbe.onrender.com/movie?page=1&page_size=50`);
+			const res = await axios.get(`${config.backendUrl}/movie?page=1&page_size=50`);
 			setMovies(res.data.data.movies);
 			setSelectedMovie(res.data.data.movies[3])
 		} catch (error) {
@@ -89,7 +90,7 @@ const Home = () => {
 
 	const getAllGenre = async () => {
 		try {
-			const res = await axios.get(`https://hackethonbe.onrender.com/movie/genres/all`);
+			const res = await axios.get(`${config.backendUrl}/movie/genres/all`);
 			setGenres(res.data.data.genres);
 		} catch (error) {
 			console.error("Error fetching movies:", error);

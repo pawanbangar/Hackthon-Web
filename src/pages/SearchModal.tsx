@@ -7,6 +7,7 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import MovieDetailModal from "./MovieDetailModal";
+import { config } from "../config";
 
 const SearchResultsModal = ({
 	movies,
@@ -29,7 +30,7 @@ const SearchResultsModal = ({
 		setLoading(true);
 		try {
 			const res = await axios.get(
-				`https://hackethonbe.onrender.com/movie/search?query=${search}&page=${customPage}&page_size=${pageSize}`
+				`${config.backendUrl}/movie/search?query=${search}&page=${customPage}&page_size=${pageSize}`
 			);
 			const newMovies: Movie[] = res.data.data.movies;
 			setResults(newMovies);

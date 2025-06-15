@@ -10,5 +10,11 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react(), // disable cache if linting doesn't update
     ],
+    server: {
+      allowedHosts: [
+        'aef7-115-99-16-246.ngrok-free.app',
+        '.ngrok-free.app' // This will allow all ngrok-free.app subdomains
+      ]
+    }
   };
 });
