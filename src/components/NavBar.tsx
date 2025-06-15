@@ -4,7 +4,6 @@ import { faSearch, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import SearchResultsModal from "../pages/SearchModal";
 import type { Movie } from "../pages/Home";
-import { config } from "../config";
 import api from "../utils/axios";
 
 const NavBar = () => {

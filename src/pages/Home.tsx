@@ -12,7 +12,6 @@ import { MoviesGenreModal } from "./MoviesGenreModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import MovieDetailModal from "./MovieDetailModal";
-import { config } from "../config";
 import api from "../utils/axios";
 
 export interface GenreDetails {
