@@ -65,7 +65,7 @@ const Home = () => {
 					? `&query=${genreSearchInput.trim()}`
 					: "";
 				const res = await api.get(
-					`/movie/search?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
+					`/movie?genre_id=${selectedGenre.genre_id}&page=${genrePage}&page_size=${genrePerPage}${query}`
 				);
 				setGenreMovies(res.data.data.movies);
 			}
