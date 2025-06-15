@@ -1,0 +1,23 @@
+RewriteEngine On
+RewriteBase /
+
+# Allow direct access to specific directories
+RewriteCond %{REQUEST_URI} !^/posters/
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteCond %{REQUEST_URI} !^/images/
+RewriteCond %{REQUEST_URI} !^/genres/
+RewriteCond %{REQUEST_URI} !^/cast/
+
+# Handle client-side routing
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule . /index.html [L]
+
+# Enable CORS for specific directories
+<IfModule mod_headers.c>
+    <FilesMatch "\.(jpg|jpeg|png|gif|ico|webp)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule> 
