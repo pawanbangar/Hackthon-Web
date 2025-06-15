@@ -32,7 +32,7 @@ const SearchResultsModal = ({
 			const res = await api.get(
 				`/vector/search?query=${search}&page=${customPage}&page_size=${pageSize}`
 			);
-			const newMovies: Movie[] = res.data.data.movies;
+			const newMovies: Movie[] = res.data.data;
 			setResults(newMovies);
 			setHasMore(newMovies.length === pageSize);
 		} catch (err) {
