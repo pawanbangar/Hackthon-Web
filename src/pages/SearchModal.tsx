@@ -24,8 +24,7 @@ const SearchResultsModal = ({
 	const [selectedMovie,setSelectedMovie] = useState<Movie | null>()
 	const [hasMore, setHasMore] = useState(true);
 	const [pageSize] = useState(20);
-	const token = localStorage.getItem('token');
-
+	
 	const fetchMovies = async (customPage = page, search = searchInput) => {
 		setLoading(true);
 		try {
@@ -133,7 +132,6 @@ const SearchResultsModal = ({
 						>
 							 Explore Results
 						</div>
-
 						<div style={{ position: "relative", width: "300px" }}>
 							<FontAwesomeIcon
 								icon={faSearch}
@@ -213,7 +211,6 @@ const SearchResultsModal = ({
 							</div>
 						</div>
 					)}
-
 					{results.length === 0 && !loading ? (
 						<div style={{ color: "white", textAlign: "center" }}>No movies found</div>
 					) : (

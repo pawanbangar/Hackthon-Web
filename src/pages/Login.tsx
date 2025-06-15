@@ -1,125 +1,208 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { authService } from '../services/auth';
 import { AxiosError } from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilm } from '@fortawesome/free-solid-svg-icons/faFilm';
-import '../styles/auth.css';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import background from "../assets/geoffrey-moffett-TFRezw7pQwI-unsplash.jpg";
+import logo from "../assets/Logo.svg";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated, isLoading } = useAuth();
-  const navigate = useNavigate();
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [showPassword, setShowPassword] = useState(false);
+	const [error, setError] = useState('');
+	const [loading, setLoading] = useState(false);
+	const { login, isAuthenticated, isLoading } = useAuth();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      navigate('/');
-    }
-  }, [isAuthenticated, isLoading, navigate]);
+	useEffect(() => {
+		if (isAuthenticated && !isLoading) {
+			navigate('/');
+		}
+	}, [isAuthenticated, isLoading, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError('');
+		setLoading(true);
 
-    try {
-      const loginResponse = await authService.login({ email, password });
-      if(loginResponse.success) {
-        try {
-          await login(loginResponse.data);
-          navigate('/');
-        } catch (err) {
-          setError('Invalid token received');
-          setLoading(false);
-        }
-      } else {
-        setError(loginResponse.message || 'An error occurred during login');
-        setLoading(false);
-      }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        setError(err.response?.data?.message || 'An error occurred during login');
-      } else {
-        setError('An unexpected error occurred');
-      }
-      setLoading(false);
-    }
-  };
+		try {
+			const loginResponse = await authService.login({ email, password });
+			if (loginResponse.success) {
+				await login(loginResponse.data);
+				navigate('/preferences');
+			} else {
+				setError(loginResponse.message || 'Login failed');
+			}
+		} catch (err) {
+			if (err instanceof AxiosError) {
+				setError(err.response?.data?.message || 'Login failed');
+			} else {
+				setError('Unexpected error');
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  if (isLoading) {
-    return (
-      <div className="auth-page">
-        <Container>
-          <Row className="justify-content-center">
-            <Col md={4}>
-              <Card className="shadow auth-card">
-                <Card.Body className="p-4 text-center">
-                  <div>Loading...</div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    );
-  }
+	const inputStyle = {
+		width: '100%',
+		padding: '12px 14px',
+		borderRadius: '8px',
+		border: '1px solid #ccc',
+		marginTop: '6px',
+		outline: 'none',
+		boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+		transition: 'all 0.3s ease',
+		fontSize: '14px',
+	};
+	
+	return (
+		<div
+			style={{
+				backgroundImage: `url("${background}")`,
+				backgroundSize: 'cover',
+				backgroundPosition: 'center',
+				minHeight: '100vh',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<div
+				style={{
+					width: '100%',
+					maxWidth: '400px',
+					background: '#fff',
+					borderRadius: '16px',
+					padding: '25px',
+					boxShadow: '0px 4px 20px rgba(0,0,0,0.15)',
+				}}
+			>
+				<div style={{ textAlign: 'center', marginBottom: '5px' }}>
+					<img src={logo} alt="RHEOflix Logo" style={{ width: '200px' }} />
+				</div>
 
-  return (
-    <div className="auth-page">
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={4}>
-            <Card className="shadow auth-card">
-              <Card.Body className="p-4">
-                <Card.Title className="text-center mb-4">
-                  <FontAwesomeIcon size='2x' icon={faFilm} className="me-2" />
-                  <h2 className="fw-bold mt-3">MovieDB</h2>
-                </Card.Title>
-                {error && <Alert variant="danger">{error}</Alert>}
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Email address</Form.Label>
-                    <Form.Control
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </Form.Group>
+				{error && (
+					<div
+						style={{
+							backgroundColor: '#f8d7da',
+							color: '#721c24',
+							padding: '10px 14px',
+							borderRadius: '6px',
+							marginBottom: '16px',
+							fontSize: '14px',
+						}}
+					>
+						{error}
+					</div>
+				)}
 
-                  <Form.Group className="mb-4">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </Form.Group>
+				<form onSubmit={handleSubmit}>
+					<div style={{ marginBottom: '18px' }}>
+						<label style={{ fontWeight: 500, fontSize: '14px' }}>Login</label>
+						<input
+							type="text"
+							placeholder="Email or phone number"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							required
+							style={inputStyle}
+						/>
+					</div>
 
-                  <Button 
-                    variant="primary" 
-                    type="submit" 
-                    className="w-100"
-                    disabled={loading}
-                  >
-                    {loading ? 'Signing in...' : 'Sign in'}
-                  </Button>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </div>
-  );
+					<div style={{ marginBottom: '12px' }}>
+						<label style={{ fontWeight: 500, fontSize: '14px' }}>Password</label>
+						<div style={{ position: 'relative' }}>
+							<input
+								type={showPassword ? 'text' : 'password'}
+								placeholder="Enter password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+								style={{ ...inputStyle, paddingRight: '40px' }}
+							/>
+							<FontAwesomeIcon
+								icon={showPassword ? faEyeSlash : faEye}
+								onClick={() => setShowPassword((prev) => !prev)}
+								style={{
+									position: 'absolute',
+									right: '12px',
+									top: '50%',
+									transform: 'translateY(-50%)',
+									color: '#888',
+									cursor: 'pointer',
+								}}
+							/>
+						</div>
+					</div>
+
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'end',
+							alignItems: 'center',
+							marginBottom: '20px',
+							fontSize: '14px',
+						}}
+					>
+						<a href="#" style={{ color: '#007bff', textDecoration: 'none' }}>
+							Forgot password?
+						</a>
+					</div>
+
+					<button
+						type="submit"
+						disabled={loading}
+						style={{
+							width: '100%',
+							padding: '12px',
+							backgroundColor: '#f4b126',
+							color: '#fff',
+							fontWeight: 'bold',
+							border: 'none',
+							borderRadius: '8px',
+							marginBottom: '20px',
+							cursor: 'pointer',
+							fontSize: '15px',
+						}}
+					>
+						{loading ? 'Signing in...' : 'Sign in'}
+					</button>
+				</form>
+
+				<div
+					style={{
+						textAlign: 'center',
+						color: '#888',
+						marginBottom: '20px',
+						position: 'relative',
+					}}
+				>
+					<div
+						style={{
+							height: '1px',
+							background: '#ccc',
+							position: 'absolute',
+							top: '50%',
+							left: 0,
+							right: 0,
+							zIndex: 0,
+						}}
+					/>
+				</div>
+
+				<div style={{ textAlign: 'center', fontSize: '14px' }}>
+					Don’t have an account?{' '}
+					<a href="/register" style={{ color: '#007bff', textDecoration: 'none' }}>
+						Sign up now
+					</a>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default Login;

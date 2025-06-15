@@ -51,7 +51,6 @@ const MovieDetailModal = ({ movie, onClose }: { movie: Movie; onClose: () => voi
 					scrollbarWidth:"none"
 				}}
 			>
-				{/* Close Button */}
 				<FontAwesomeIcon
 					icon={faXmark}
 					onClick={onClose}
@@ -64,13 +63,9 @@ const MovieDetailModal = ({ movie, onClose }: { movie: Movie; onClose: () => voi
 						cursor: "pointer",
 					}}
 				/>
-
-				{/* Header */}
 				<h2 style={{ fontSize: "36px", marginBottom: "20px", fontWeight: "bold" }}>
 					{movie.title}
 				</h2>
-
-				{/* Content */}
 				<div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
 					<img
 						src={movie.poster_path}

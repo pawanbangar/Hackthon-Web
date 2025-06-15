@@ -3,8 +3,9 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
-// import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
+import PreferencesPage from './pages/UserPreferences';
 
 function App() {
   return (
@@ -25,6 +26,14 @@ function App() {
           element={
             // <ProtectedRoute>
               <Profile />
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/preferences"
+          element={
+            // <ProtectedRoute>
+              <PreferencesPage />
             // </ProtectedRoute>
           }
         />
