@@ -42,6 +42,7 @@ export interface Movie {
 const Home = () => {
 	const [movies, setMovies] = useState<Movie[]>([]);
 	const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
+	const [topNmovies, setTopNmovies] = useState<Movie[]>([]);
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
 	const [genres, setGenres] = useState<GenreDetails[]>([]);
 	const [startIndex, setStartIndex] = useState(0);
@@ -56,6 +57,7 @@ const Home = () => {
 	const [selectedGenereMovie, setSelectedGenereMovie] = useState<Movie | null>(null);
 	const [genreIsLoading, setGenreIsLoading] = useState(false);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
+	const [topNmoviesLoading, setTopNmoviesLoading] = useState(true);
 
 	const visibleCount = 6;
 
@@ -112,10 +114,25 @@ const Home = () => {
 		}
 	};
 
+	const fetchTopNmovies = async () => {
+		setTopNmoviesLoading(true);
+		try {
+			const res = await api.get('/movie/filter?top_n_movies=10');
+			if (res.data.success) {
+				setTopNmovies(res.data.data.movies);
+			}
+		} catch (error) {
+			console.error("Failed to fetch recommendations:", error);
+		} finally {
+			setTopNmoviesLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		getAllMovies();
 		getAllGenre();
 		fetchRecommendations();
+		fetchTopNmovies();
 	}, []);
 
 	useEffect(() => {
@@ -357,6 +374,53 @@ const Home = () => {
 						</div>
 					</>
 				}
+			</div>
+			<div style={{ backgroundColor: "black" }}>
+				<motion.div
+					ref={recommendedRef}
+					style={{ padding: "30px", color: "white" }}
+					initial={{ opacity: 0, y: 50 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+				>
+					<motion.h2
+						initial={{ opacity: 0, x: -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.4 }}
+						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+					>
+						Top 10 Movies
+					</motion.h2>
+					<div
+						style={{
+							display: "flex",
+							gap: "15px",
+							overflowX: "auto",
+							overflowY: "hidden",
+							paddingBottom: "10px",
+							flexWrap: "nowrap",
+							scrollBehavior: "smooth",
+							scrollbarWidth: "none"
+						}}
+					>
+						{topNmoviesLoading ? (
+							<div style={{ color: "white", padding: "20px" }}>Loading recommendations...</div>
+						) : topNmovies.length > 0 ? (
+							topNmovies.map((movie, index) => (
+								<motion.div
+									key={`rec-${movie.movie_id}`}
+									initial={{ opacity: 0, x: 50 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									transition={{ delay: index * 0.05, duration: 0.3 }}
+								>
+									<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+								</motion.div>
+							))
+						) : (
+							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+						)}
+					</div>
+				</motion.div>
 			</div>
 			<div style={{ backgroundColor: "black" }}>
 				<motion.div
