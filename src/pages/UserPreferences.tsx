@@ -218,7 +218,7 @@ const UserPreferences = () => {
 						onMouseOver={(e) => (e.currentTarget.style.background = '#e0e0e0')}
 						onMouseOut={(e) => (e.currentTarget.style.background = '#f5f5f5')}
 					>
-						Skip
+						Cancel
 					</button>
 					<button
 						onClick={handleSubmit}

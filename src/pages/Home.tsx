@@ -41,6 +41,7 @@ export interface Movie {
 
 const Home = () => {
 	const [movies, setMovies] = useState<Movie[]>([]);
+	const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
 	const [genres, setGenres] = useState<GenreDetails[]>([]);
 	const [startIndex, setStartIndex] = useState(0);
@@ -54,6 +55,7 @@ const Home = () => {
 	const [selectedRecommendedMovie, setSelectedRecommendedMovie] = useState<Movie | null>(null);
 	const [selectedGenereMovie, setSelectedGenereMovie] = useState<Movie | null>(null);
 	const [genreIsLoading, setGenreIsLoading] = useState(false);
+	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
 
 	const visibleCount = 6;
 
@@ -96,10 +98,24 @@ const Home = () => {
 		}
 	};
 
+	const fetchRecommendations = async () => {
+		setRecommendationsLoading(true);
+		try {
+			const res = await api.get('/vector/recommend');
+			if (res.data.success) {
+				setRecommendedMovies(res.data.data);
+			}
+		} catch (error) {
+			console.error("Failed to fetch recommendations:", error);
+		} finally {
+			setRecommendationsLoading(false);
+		}
+	};
 
 	useEffect(() => {
 		getAllMovies();
 		getAllGenre();
+		fetchRecommendations();
 	}, []);
 
 	useEffect(() => {
@@ -370,16 +386,22 @@ const Home = () => {
 							scrollbarWidth: "none"
 						}}
 					>
-						{movies.map((movie, index) => (
-							<motion.div
-								key={`rec-${movie.movie_id}`}
-								initial={{ opacity: 0, x: 50 }}
-								whileInView={{ opacity: 1, x: 0 }}
-								transition={{ delay: index * 0.05, duration: 0.3 }}
-							>
-								<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
-							</motion.div>
-						))}
+						{recommendationsLoading ? (
+							<div style={{ color: "white", padding: "20px" }}>Loading recommendations...</div>
+						) : recommendedMovies.length > 0 ? (
+							recommendedMovies.map((movie, index) => (
+								<motion.div
+									key={`rec-${movie.movie_id}`}
+									initial={{ opacity: 0, x: 50 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									transition={{ delay: index * 0.05, duration: 0.3 }}
+								>
+									<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+								</motion.div>
+							))
+						) : (
+							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+						)}
 					</div>
 				</motion.div>
 				{genres &&
