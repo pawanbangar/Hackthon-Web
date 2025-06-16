@@ -13,6 +13,7 @@ const NavBar = () => {
 	const [showSearchModal, setShowSearchModal] = useState(false);
 	const [allMovies, setAllMovies] = useState<Movie[]>([]);
 	const [loading, setLoading] = useState(false);
+	const { user } = useAuth();
 	const [initialSearchText, setInitialSearchText] = useState("");
 	const navigate = useNavigate();
 	const { logout } = useAuth();
@@ -136,7 +137,7 @@ const NavBar = () => {
 							border: "2px solid white",
 						}}
 					>
-						P
+						{user?.username[0].toUpperCase()}
 					</div>
 
 					<div
