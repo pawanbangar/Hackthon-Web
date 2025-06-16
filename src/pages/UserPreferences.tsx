@@ -57,6 +57,11 @@ const UserPreferences = () => {
 		setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
 	};
 
+	const sortedGenres = [...genresList].sort((a, b) =>
+		a.genre_name.localeCompare(b.genre_name)
+	);
+
+
 	const handleSubmit = async () => {
 		try {
 			const response = await authService.updatePreferences({
@@ -163,8 +168,8 @@ const UserPreferences = () => {
 					{isLoading ? (
 						<div style={{ textAlign: 'center', padding: '20px' }}>Loading genres...</div>
 					) : (
-						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-							{genresList.map(genre => (
+						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' , maxHeight:"200px" , overflowY:"auto" , scrollbarWidth:"none" }}>
+							{sortedGenres.map(genre => (
 								<div
 									key={genre.genre_id}
 									onClick={() => handleToggle(genre.genre_name, genres, setGenres)}
