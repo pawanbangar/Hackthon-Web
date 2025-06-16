@@ -541,7 +541,7 @@ const Home = () => {
 							>
 								{selectedGenre.genre_name} Movies
 							</div>
-							<div style={{ position: "relative", width: "300px" }}>
+							{/* <div style={{ position: "relative", width: "300px" }}>
 								<FontAwesomeIcon
 									icon={faSearch}
 									style={{
@@ -568,7 +568,7 @@ const Home = () => {
 										color: "white",
 									}}
 								/>
-							</div>
+							</div> */}
 						</div>
 						<div
 							style={{

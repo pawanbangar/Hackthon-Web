@@ -22,15 +22,16 @@ const SearchResultsModal = ({
 	const [results, setResults] = useState<Movie[]>(movies);
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(1);
-	const [selectedMovie,setSelectedMovie] = useState<Movie | null>()
+	const [selectedMovie, setSelectedMovie] = useState<Movie | null>()
 	const [hasMore, setHasMore] = useState(true);
 	const [pageSize] = useState(20);
-	
+
 	const fetchMovies = async (customPage = page, search = searchInput) => {
 		setLoading(true);
 		try {
+			const queryParam = search.trim() === "" ? "all" : search;
 			const res = await api.get(
-				`/vector/search?query=${search}&page=${customPage}&page_size=${pageSize}`
+				`/vector/search?query=${queryParam}&page=${customPage}&page_size=${pageSize}`
 			);
 			const newMovies: Movie[] = res.data.data;
 			setResults(newMovies);
@@ -43,11 +44,15 @@ const SearchResultsModal = ({
 		setLoading(false);
 	};
 
-	const handleSearch = () => {
-		setPage(1);
-		setHasMore(true);
-		fetchMovies(1, searchInput);
-	};
+	useEffect(() => {
+		const debounceTimer = setTimeout(() => {
+			setPage(1);
+			setHasMore(true);
+			fetchMovies(1, searchInput);
+		}, 500);
+
+		return () => clearTimeout(debounceTimer);
+	}, [searchInput]);
 
 	const handleNextPage = () => {
 		const nextPage = page + 1;
@@ -131,7 +136,7 @@ const SearchResultsModal = ({
 								whiteSpace: "nowrap",
 							}}
 						>
-							 Explore Results
+							Explore Results
 						</div>
 						<div style={{ position: "relative", width: "300px" }}>
 							<FontAwesomeIcon
@@ -148,7 +153,7 @@ const SearchResultsModal = ({
 								type="text"
 								placeholder="Search..."
 								value={searchInput}
-								onChange={(e) => { setSearchInput(e.target.value); handleSearch() }}
+								onChange={(e) => setSearchInput(e.target.value)}
 								style={{
 									width: "100%",
 									padding: "10px 15px 10px 35px",
@@ -170,7 +175,7 @@ const SearchResultsModal = ({
 						paddingTop: "20px",
 						paddingBottom: "80px",
 						position: "relative",
-						scrollbarWidth:"none"
+						scrollbarWidth: "none"
 					}}
 				>
 					{loading && (
@@ -230,13 +235,13 @@ const SearchResultsModal = ({
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: i * 0.05 }}
 								>
-									<RecommendedCard movie={movie} onClick={() => setSelectedMovie(movie)}/>
+									<RecommendedCard movie={movie} onClick={() => setSelectedMovie(movie)} />
 								</motion.div>
 							))}
 						</div>
 					)}
 				</div>
-				<div
+				{/* <div
 					style={{
 						position: "sticky",
 						bottom: 0,
@@ -279,7 +284,7 @@ const SearchResultsModal = ({
 					>
 						Next →
 					</button>
-				</div>
+				</div> */}
 			</div>
 			{selectedMovie && (
 				<MovieDetailModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
