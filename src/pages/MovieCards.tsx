@@ -3,6 +3,10 @@ import play2 from "../assets/play-button 1.svg";
 import add from "../assets/add 1.svg";
 import like from "../assets/thumbs-up 1.svg";
 import type { Movie } from "./Home";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
+import api from "../utils/axios";
 
 interface MovieCardProps {
 	poster: string;
@@ -21,11 +25,27 @@ const MovieCard = ({
 }: MovieCardProps) => {
 	const [hovered, setHovered] = useState(false);
 	const isActive = hovered || isSelected;
+	const [isFavorite, setIsFavorite] = useState(false);
 
 	const hr = Math.floor(movie.runtime / 60);
 	const min = movie.runtime % 60
 
 	const time = `${hr} Hours ${min} Minutes`
+
+
+	const handleFavorite = async () => {
+		try {
+			setIsFavorite((prev) => !prev);
+			if (!isFavorite) {
+				await api.post(`/user-activity/favorites/${movie.movie_id}`);
+			} else {
+				await api.delete(`/user-activity/favorites/${movie.movie_id}`);
+			}
+		} catch (err) {
+			console.error("Failed to update favorites:", err);
+		}
+	};
+
 
 	return (
 		<div
@@ -103,7 +123,7 @@ const MovieCard = ({
 									bottom: "10px",
 									color: "black",
 									fontSize: "12px",
-									fontWeight:"700"
+									fontWeight: "700"
 								}}
 							>
 								{time}
@@ -112,10 +132,29 @@ const MovieCard = ({
 						<div style={{
 							color: "black", position: "absolute",
 							zIndex: 2, right: "15px",
-							bottom: "38px",
-							fontWeight:"700"
+							bottom: "50px",
+							fontWeight: "700"
 						}}>
 							{new Date(movie?.release_date).getFullYear()}
+						</div>
+						<div style={{
+							color: "black", position: "absolute",
+							zIndex: 2, right: "15px",
+							bottom: "10px",
+							fontWeight: "700"
+						}}>
+							<div
+								onClick={(e) => {
+									e.stopPropagation();
+									handleFavorite();
+								}}
+							>
+								<FontAwesomeIcon
+									icon={isFavorite ? solidHeart : regularHeart}
+									color={isFavorite ? "#ff4d4d" : "#fff"}
+									style={{ fontSize: "25px" }}
+								/>
+							</div>
 						</div>
 					</div>
 					{isTop && (

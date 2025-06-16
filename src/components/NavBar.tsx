@@ -8,6 +8,8 @@ import api from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { notify } from "../utils/notify";
+import ProfileModal from "../pages/ProfileModal";
+
 
 const NavBar = () => {
 	const [showSearchModal, setShowSearchModal] = useState(false);
@@ -15,6 +17,7 @@ const NavBar = () => {
 	const [loading, setLoading] = useState(false);
 	const { user } = useAuth();
 	const [initialSearchText, setInitialSearchText] = useState("");
+	const [showProfileModal, setShowProfileModal] = useState(false);
 	const navigate = useNavigate();
 	const { logout } = useAuth();
 
@@ -119,9 +122,6 @@ const NavBar = () => {
 					</div>
 
 					<div
-						onClick={() => {
-							navigate('/preferences');
-						}}
 						style={{
 							width: "32px",
 							height: "32px",
@@ -136,6 +136,7 @@ const NavBar = () => {
 							cursor: "pointer",
 							border: "2px solid white",
 						}}
+						onClick={() => setShowProfileModal(true)}
 					>
 						{user?.username[0].toUpperCase()}
 					</div>
@@ -170,6 +171,11 @@ const NavBar = () => {
 					initialSearch={initialSearchText}
 				/>
 			)}
+
+			{showProfileModal && (
+				<ProfileModal onClose={() => setShowProfileModal(false)} />
+			)}
+
 		</>
 	);
 };

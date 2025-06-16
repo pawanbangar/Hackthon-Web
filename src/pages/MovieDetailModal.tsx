@@ -1,5 +1,14 @@
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark, faStar, faClock, faMoneyBill, faUsers } from "@fortawesome/free-solid-svg-icons";
+import {
+	faXmark,
+	faStar,
+	faClock,
+	faMoneyBill,
+} from "@fortawesome/free-solid-svg-icons";
+import YouTube from "react-youtube";
+import { motion, AnimatePresence } from "framer-motion";
+import { fetchTrailerId } from "./fetchTrailer";
 import type { Movie } from "./Home";
 
 const formatDate = (dateString: string) =>
@@ -16,111 +25,206 @@ const formatCurrency = (value: number) =>
 		minimumFractionDigits: 0,
 	});
 
+const infoCardStyle: React.CSSProperties = {
+	background: "rgba(255, 255, 255, 0.03)",
+	border: "1px solid rgba(255, 255, 255, 0.1)",
+	borderRadius: "12px",
+	padding: "14px 18px",
+	boxShadow: "0 0 12px rgba(255,255,255,0.04)",
+	fontSize: "15px",
+	backdropFilter: "blur(6px)",
+};
+
 const MovieDetailModal = ({ movie, onClose }: { movie: Movie; onClose: () => void }) => {
+	const [trailerId, setTrailerId] = useState<string | null>(null);
+
+	useEffect(() => {
+		const year = new Date(movie.release_date).getFullYear().toString();
+		fetchTrailerId(movie.title, year).then(setTrailerId);
+	}, [movie]);
+
 	return (
-		<div
-			onClick={onClose}
-			style={{
-				position: "fixed",
-				top: 0,
-				left: 0,
-				width: "100vw",
-				height: "100vh",
-				backgroundColor: "rgba(0,0,0,0.6)",
-				backdropFilter: "blur(8px)",
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
-				zIndex: 9999,
-				padding: "20px",
-			}}
-		>
-			<div
-				onClick={(e) => e.stopPropagation()}
+		<AnimatePresence>
+			<motion.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				exit={{ opacity: 0 }}
+				onClick={onClose}
 				style={{
-					backgroundColor: "#111",
-					color: "white",
-					borderRadius: "16px",
-					width: "90vw",
-					maxWidth: "1000px",
-					maxHeight: "90vh",
+					position: "fixed",
+					top: 0,
+					left: 0,
+					width: "100vw",
+					height: "100vh",
+					background: "rgba(0, 0, 0, 0.8)",
+					backdropFilter: "blur(15px)",
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					zIndex: 9999,
+					padding: "20px",
 					overflowY: "auto",
-					boxShadow: "0 0 25px rgba(0,0,0,0.7)",
-					position: "relative",
-					padding: "30px",
-					scrollbarWidth:"none"
 				}}
 			>
-				<FontAwesomeIcon
-					icon={faXmark}
-					onClick={onClose}
+				<motion.div
+					initial={{ y: 80, opacity: 0 }}
+					animate={{ y: 0, opacity: 1 }}
+					exit={{ y: 80, opacity: 0 }}
+					transition={{ type: "spring", damping: 20 }}
+					onClick={(e) => e.stopPropagation()}
 					style={{
-						position: "absolute",
-						top: "20px",
-						right: "30px",
-						fontSize: "26px",
-						color: "#fff",
-						cursor: "pointer",
+						background:
+							"linear-gradient(to right bottom, rgba(20, 20, 20, 0.9), rgba(40, 40, 40, 0.9))",
+						color: "white",
+						borderRadius: "20px",
+						width: "90vw",
+						maxWidth: "1000px",
+						maxHeight: "90vh",
+						overflowY: "auto",
+						boxShadow: "0 0 25px rgba(0,0,0,0.6)",
+						position: "relative",
+						padding: "30px",
+						fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+						scrollbarWidth:"none"
 					}}
-				/>
-				<h2 style={{ fontSize: "36px", marginBottom: "20px", fontWeight: "bold" }}>
-					{movie.title}
-				</h2>
-				<div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
-					<img
-						src={movie.poster_path}
-						alt={movie.title}
+				>
+					<FontAwesomeIcon
+						icon={faXmark}
+						onClick={onClose}
 						style={{
-							width: "280px",
-							borderRadius: "12px",
-							objectFit: "cover",
-							boxShadow: "0 0 15px rgba(0,0,0,0.5)",
+							position: "absolute",
+							top: "20px",
+							right: "30px",
+							fontSize: "28px",
+							color: "#fff",
+							cursor: "pointer",
+							transition: "transform 0.3s ease",
 						}}
+						onMouseEnter={(e) =>
+							((e.currentTarget.style.transform = "scale(1.2)"))
+						}
+						onMouseLeave={(e) =>
+							((e.currentTarget.style.transform = "scale(1)"))
+						}
 					/>
 
-					<div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
-						<p style={{ lineHeight: "1.6", fontSize: "16px", marginBottom: "10px" }}>
-							{movie.overview}
-						</p>
+					<h2 style={{ fontSize: "36px", marginBottom: "20px", fontWeight: "bold" }}>
+						{movie.title}
+					</h2>
 
-						<p>
-							<strong>📅 Release Date:</strong> {formatDate(movie.release_date)}
-						</p>
+					{trailerId && (
+						<div
+							style={{
+								marginBottom: "24px",
+								borderRadius: "14px",
+								overflow: "hidden",
+								boxShadow: "0 0 20px rgba(255,255,255,0.1)",
+							}}
+						>
+							<YouTube
+								videoId={trailerId}
+								opts={{
+									width: "100%",
+									playerVars: { autoplay: 0, rel: 0 },
+								}}
+							/>
+						</div>
+					)}
 
-						<p>
-							<strong>⭐ Rating:</strong>{" "}
-							<FontAwesomeIcon icon={faStar} style={{ color: "#F5B82B" }} />{" "}
-							{movie.rating}/10
-						</p>
+					<div style={{ display: "flex", flexDirection: "row", gap: "30px", flexWrap: "wrap" }}>
+						<img
+							src={movie.poster_path}
+							alt={movie.title}
+							style={{
+								width: "280px",
+								borderRadius: "14px",
+								objectFit: "cover",
+								boxShadow: "0 0 15px rgba(0,0,0,0.4)",
+								transition: "transform 0.3s",
+							}}
+							onMouseEnter={(e) => ((e.currentTarget.style.transform = "scale(1.03)"))}
+							onMouseLeave={(e) => ((e.currentTarget.style.transform = "scale(1)"))}
+						/>
 
-						<p>
-							<strong>🎭 Genres:</strong>{" "}
-							{movie.genres.map((g) => g.genre.genre_name).join(" • ")}
-						</p>
+						<div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
+							<p style={{ lineHeight: "1.8", fontSize: "16px", opacity: 0.9 }}>{movie.overview}</p>
 
-						<p>
-							<FontAwesomeIcon icon={faClock} /> <strong>Runtime:</strong>{" "}
-							{movie.runtime} minutes
-						</p>
+							<div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+								{movie.genres.map((g) => (
+									<span
+										key={g.genre.genre_name}
+										style={{
+											background: "linear-gradient(90deg, #F5B82B, #ff930f)",
+											color: "#000",
+											padding: "4px 14px",
+											borderRadius: "20px",
+											fontSize: "13px",
+											fontWeight: 500,
+										}}
+									>
+										{g.genre.genre_name}
+									</span>
+								))}
+							</div>
 
-						<p>
-							<FontAwesomeIcon icon={faUsers} /> <strong>Cast:</strong>{" "}
-							{movie.cast.slice(0, 5).join(", ")} {movie.cast.length > 5 && "..."}
-						</p>
+							<div
+								style={{
+									display: "grid",
+									gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+									gap: "16px",
+									marginTop: "20px",
+								}}
+							>
+								<div style={infoCardStyle}>
+									<strong>📅 Release Date:</strong>
+									<br />
+									{formatDate(movie.release_date)}
+								</div>
+								<div style={infoCardStyle}>
+									<strong>
+										<FontAwesomeIcon icon={faStar} style={{ color: "#F5B82B" }} /> Rating:
+									</strong>
+									<br />
+									{movie.rating}/10
+								</div>
+								<div style={infoCardStyle}>
+									<strong>
+										<FontAwesomeIcon icon={faClock} /> Runtime:
+									</strong>
+									<br />
+									{movie.runtime} minutes
+								</div>
+								<div style={infoCardStyle}>
+									<strong>
+										<FontAwesomeIcon icon={faMoneyBill} /> Budget:
+									</strong>
+									<br />
+									{formatCurrency(movie.budget)}
+								</div>
+								<div style={infoCardStyle}>
+									<strong>
+										<FontAwesomeIcon icon={faMoneyBill} /> Revenue:
+									</strong>
+									<br />
+									{formatCurrency(movie.revenue)}
+								</div>
+							</div>
 
-						<p>
-							<FontAwesomeIcon icon={faMoneyBill} /> <strong>Budget:</strong>{" "}
-							{formatCurrency(movie.budget)}
-						</p>
-
-						<p>
-							<FontAwesomeIcon icon={faMoneyBill} /> <strong>Revenue:</strong>{" "}
-							{formatCurrency(movie.revenue)}
-						</p>
+							<div
+								style={{
+									marginTop: "30px",
+									textAlign: "center",
+									fontSize: "14px",
+									color: "#aaa",
+								}}
+							>
+								🎬 Sit back, relax and enjoy your show!
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-		</div>
+				</motion.div>
+			</motion.div>
+		</AnimatePresence>
 	);
 };
 

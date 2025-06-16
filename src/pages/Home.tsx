@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import GenreCards from "./GenreCards";
 import { MoviesGenreModal } from "./MoviesGenreModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import MovieDetailModal from "./MovieDetailModal";
 import api from "../utils/axios";
 
@@ -43,6 +43,7 @@ const Home = () => {
 	const [movies, setMovies] = useState<Movie[]>([]);
 	const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 	const [topNmovies, setTopNmovies] = useState<Movie[]>([]);
+	const [favouriteMovies, setFavouriteMovies] = useState<Movie[]>([]);
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
 	const [genres, setGenres] = useState<GenreDetails[]>([]);
 	const [startIndex, setStartIndex] = useState(0);
@@ -58,6 +59,8 @@ const Home = () => {
 	const [genreIsLoading, setGenreIsLoading] = useState(false);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
 	const [topNmoviesLoading, setTopNmoviesLoading] = useState(true);
+	const [favouriteMoviesLoading, setFavouriteMoviesLoading] = useState(true);
+	const [selectedLandingPageMovie, setSelectedLandingPageMovie] = useState<Movie | null>(null);
 
 	const visibleCount = 6;
 
@@ -82,7 +85,7 @@ const Home = () => {
 	const getAllMovies = async () => {
 		setIsLoading(true)
 		try {
-			const res = await api.get(`/movie?page=1&page_size=50`);
+			const res = await api.get(`/movie?page=2&page_size=30`);
 			setMovies(res.data.data.movies);
 			setSelectedMovie(res.data.data.movies[3])
 		} catch (error) {
@@ -128,11 +131,26 @@ const Home = () => {
 		}
 	};
 
+	const fetchFavoriteMovies = async () => {
+		setFavouriteMoviesLoading(true);
+		try {
+			const res = await api.get('/movie/filter?favourits_movies=true');
+			if (res.data.success) {
+				setFavouriteMovies(res.data.data.movies);
+			}
+		} catch (error) {
+			console.error("Failed to fetch recommendations:", error);
+		} finally {
+			setFavouriteMoviesLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		getAllMovies();
 		getAllGenre();
 		fetchRecommendations();
 		fetchTopNmovies();
+		fetchFavoriteMovies();
 	}, []);
 
 	useEffect(() => {
@@ -154,6 +172,12 @@ const Home = () => {
 		const randomOffset = Math.floor(Math.random() * 5);
 		setSelectedMovie(movies[newIndex + randomOffset]);
 	};
+
+	const handleLandingPagePreview = () => {
+		if (selectedMovie)
+			setSelectedLandingPageMovie(selectedMovie)
+	};
+
 
 	const overview = selectedMovie?.overview || "";
 	const isLong = overview.length > 90;
@@ -197,7 +221,7 @@ const Home = () => {
 						bottom: 0,
 						left: 0,
 						width: "100%",
-						height: "26%",
+						height: "30%",
 						background: `linear-gradient(to bottom, rgba(0,0,0,0) ${Math.min(scrollY, 300)}px, black 100%)`,
 						transition: "all 0.3s ease-in-out",
 						zIndex: 0,
@@ -285,19 +309,26 @@ const Home = () => {
 								)}
 							</div>
 							<div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-								<button style={{
-									background: "transparent", width: "144px", height: "48px",
-									color: "#F5C51C", border: "2px solid #F5C51C", borderRadius: "8px"
-								}}>
-									Watch Trailer
-								</button>
-								<button style={{
-									background: "rgb(118, 118, 116)", width: "144px", height: "48px",
-									color: "white", border: "2px solid white", borderRadius: "8px",
-									display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"
-								}}>
-									<img src={play} style={{ width: "15px", height: "15px" }} alt="play" />
-									Watch Now
+								<button
+									style={{
+										background: "#F5C51C",
+										width: "144px",
+										height: "48px",
+										color: "white",
+										border: "2px solid white",
+										borderRadius: "8px",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										gap: "8px",
+										cursor: "pointer",
+										fontWeight: "bold",
+										fontSize: "16px"
+									}}
+									onClick={() => handleLandingPagePreview()}
+								>
+									<FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+									Preview
 								</button>
 							</div>
 						</motion.div>
@@ -312,7 +343,7 @@ const Home = () => {
 						}}>
 							<button
 								style={{
-									background: "#F5B82B",
+									background: "#F5C51C",
 									color: "black",
 									padding: "10px 15px",
 									borderRadius: "8px",
@@ -357,7 +388,7 @@ const Home = () => {
 							</div>
 							<button
 								style={{
-									background: "#F5B82B",
+									background: "#F5C51C",
 									color: "black",
 									padding: "10px 15px",
 									borderRadius: "8px",
@@ -577,7 +608,7 @@ const Home = () => {
 								overflowY: "auto",
 								overflowX: "hidden",
 								padding: "20px",
-								scrollbarWidth:"none"
+								scrollbarWidth: "none"
 							}}
 						>
 							{genreIsLoading && (
@@ -635,7 +666,7 @@ const Home = () => {
 											whileInView={{ opacity: 1, x: 0 }}
 											transition={{ delay: index * 0.05, duration: 0.3 }}
 										>
-											<RecommendedCard movie={movie} onClick={() => setSelectedGenereMovie(movie)}/>
+											<RecommendedCard movie={movie} onClick={() => setSelectedGenereMovie(movie)} />
 										</motion.div>
 									))}
 								</div>
@@ -652,7 +683,7 @@ const Home = () => {
 						>
 							<button
 								style={{
-									background: "#F5B82B",
+									background: "#F5C51C",
 									color: "black",
 									padding: "10px 15px",
 									borderRadius: "8px",
@@ -667,7 +698,7 @@ const Home = () => {
 							</button>
 							<button
 								style={{
-									background: "#F5B82B",
+									background: "#F5C51C",
 									color: "black",
 									padding: "10px 15px",
 									borderRadius: "8px",
@@ -689,6 +720,9 @@ const Home = () => {
 			)}
 			{selectedGenereMovie && (
 				<MovieDetailModal movie={selectedGenereMovie} onClose={() => setSelectedGenereMovie(null)} />
+			)}
+			{selectedLandingPageMovie && (
+				<MovieDetailModal movie={selectedLandingPageMovie} onClose={() => setSelectedLandingPageMovie(null)} />
 			)}
 		</>
 	);
