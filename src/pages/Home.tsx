@@ -498,7 +498,7 @@ const Home = () => {
 							transition={{ duration: 0.4 }}
 							style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
 						>
-							Recommended for You
+							 Based On Your Preferences
 						</motion.h2>
 						<div
 							style={{
