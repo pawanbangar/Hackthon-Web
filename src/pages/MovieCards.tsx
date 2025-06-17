@@ -6,7 +6,8 @@ import type { Movie } from "./Home";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
 import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import api from "../utils/axios";
+import { useFavorites } from "../context/FavoritesContext";
+import { motion } from "framer-motion";
 
 interface MovieCardProps {
 	poster: string;
@@ -25,27 +26,27 @@ const MovieCard = ({
 }: MovieCardProps) => {
 	const [hovered, setHovered] = useState(false);
 	const isActive = hovered || isSelected;
-	const [isFavorite, setIsFavorite] = useState(false);
+	const { isFavorite, addFavorite, removeFavorite, isUpdating } = useFavorites();
+	const isMovieFavorite = isFavorite(movie.movie_id);
+	const isMovieUpdating = isUpdating(movie.movie_id);
 
 	const hr = Math.floor(movie.runtime / 60);
 	const min = movie.runtime % 60
 
 	const time = `${hr} Hours ${min} Minutes`
 
-
-	const handleFavorite = async () => {
+	const handleFavorite = async (e: React.MouseEvent) => {
+		e.stopPropagation();
 		try {
-			setIsFavorite((prev) => !prev);
-			if (!isFavorite) {
-				await api.post(`/user-activity/favorites/${movie.movie_id}`);
+			if (!isMovieFavorite) {
+				await addFavorite(movie.movie_id);
 			} else {
-				await api.delete(`/user-activity/favorites/${movie.movie_id}`);
+				await removeFavorite(movie.movie_id);
 			}
 		} catch (err) {
 			console.error("Failed to update favorites:", err);
 		}
 	};
-
 
 	return (
 		<div
@@ -143,17 +144,28 @@ const MovieCard = ({
 							bottom: "10px",
 							fontWeight: "700"
 						}}>
-							<div
-								onClick={(e) => {
-									e.stopPropagation();
-									handleFavorite();
-								}}
-							>
-								<FontAwesomeIcon
-									icon={isFavorite ? solidHeart : regularHeart}
-									color={isFavorite ? "#ff4d4d" : "#fff"}
-									style={{ fontSize: "25px" }}
-								/>
+							<div onClick={handleFavorite}>
+								<motion.div
+									animate={{
+										scale: isMovieUpdating ? [1, 1.2, 1] : 1,
+										rotate: isMovieUpdating ? [0, 10, -10, 0] : 0,
+									}}
+									transition={{
+										duration: 0.5,
+										repeat: isMovieUpdating ? Infinity : 0,
+										ease: "easeInOut"
+									}}
+								>
+									<FontAwesomeIcon
+										icon={isMovieFavorite ? solidHeart : regularHeart}
+										color={isMovieFavorite ? "#ff4d4d" : "#fff"}
+										style={{ 
+											fontSize: "25px",
+											opacity: isMovieUpdating ? 0.7 : 1,
+											transition: "all 0.3s ease"
+										}}
+									/>
+								</motion.div>
 							</div>
 						</div>
 					</div>

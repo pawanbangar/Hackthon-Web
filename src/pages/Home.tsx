@@ -87,7 +87,7 @@ const Home = () => {
 		try {
 			const res = await api.get(`/movie?page=2&page_size=30`);
 			setMovies(res.data.data.movies);
-			setSelectedMovie(res.data.data.movies[3])
+			setSelectedMovie(res.data.data.movies[3]);
 		} catch (error) {
 			console.error("Error fetching movies:", error);
 		}
