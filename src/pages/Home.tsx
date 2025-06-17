@@ -484,7 +484,6 @@ const Home = () => {
 				</motion.div>
 			</div>
 			<div style={{ backgroundColor: "black" }}>
-				{recommendedMovies.length > 0 &&
 					<motion.div
 						ref={recommendedRef}
 						style={{ padding: "30px", color: "white" }}
@@ -556,8 +555,6 @@ const Home = () => {
 							)}
 						</div>
 					</motion.div>
-				}
-				{historyBasedMovies.length > 0 &&
 					<motion.div
 						ref={recommendedRef}
 						style={{ padding: "30px", color: "white" }}
@@ -629,8 +626,6 @@ const Home = () => {
 							)}
 						</div>
 					</motion.div>
-				}
-				{favorites.length > 0 &&
 					<motion.div
 						ref={favouriteRef}
 						style={{ padding: "30px", color: "white" }}
@@ -702,9 +697,6 @@ const Home = () => {
 							)}
 						</div>
 					</motion.div>
-
-				}
-
 				{genres &&
 					<motion.div
 						ref={popularRef}
