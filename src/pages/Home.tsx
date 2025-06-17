@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import MovieDetailModal from "./MovieDetailModal";
 import api from "../utils/axios";
+import { useFavorites } from "../context/FavoritesContext";
 
 export interface GenreDetails {
 	genre_id: number;
@@ -59,6 +60,8 @@ const Home = () => {
 	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
 	const [topNmoviesLoading, setTopNmoviesLoading] = useState(true);
 	const [selectedLandingPageMovie, setSelectedLandingPageMovie] = useState<Movie | null>(null);
+	const { favorites } = useFavorites();
+	const [favouritsMovies , setFavoritesMovies] = useState<Movie | null>(null)
 
 	const visibleCount = 6;
 
@@ -171,6 +174,7 @@ const Home = () => {
 
 	const recommendedRef = useRef(null);
 	const popularRef = useRef(null);
+	const favouriteRef = useRef(null);
 
 
 	useEffect(() => {
@@ -482,6 +486,51 @@ const Home = () => {
 						)}
 					</div>
 				</motion.div>
+				<motion.div
+					ref={favouriteRef}
+					style={{ padding: "30px", color: "white" }}
+					initial={{ opacity: 0, y: 50 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+				>
+					<motion.h2
+						initial={{ opacity: 0, x: -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.4 }}
+						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+					>
+						Favourite Movies
+					</motion.h2>
+					<div
+						style={{
+							display: "flex",
+							gap: "15px",
+							overflowX: "auto",
+							overflowY: "hidden",
+							paddingBottom: "10px",
+							flexWrap: "nowrap",
+							scrollBehavior: "smooth",
+							scrollbarWidth: "none"
+						}}
+					>
+						{favorites.length === 0 ? (
+							<div style={{ color: "white", padding: "20px" }}>Loading favourite...</div>
+						) : favorites.length > 0 ? (
+							favorites.map((movie, index) => (
+								<motion.div
+									key={`rec-${movie.movie_id}`}
+									initial={{ opacity: 0, x: 50 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									transition={{ delay: index * 0.05, duration: 0.3 }}
+								>
+									<RecommendedCard movie={movie} onClick={() => setFavoritesMovies(movie)} />
+								</motion.div>
+							))
+						) : (
+							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+						)}
+					</div>
+				</motion.div>
 				{genres &&
 					<motion.div
 						ref={popularRef}
@@ -706,6 +755,9 @@ const Home = () => {
 			)}
 			{selectedLandingPageMovie && (
 				<MovieDetailModal movie={selectedLandingPageMovie} onClose={() => setSelectedLandingPageMovie(null)} />
+			)}
+			{favouritsMovies && (
+				<MovieDetailModal movie={favouritsMovies} onClose={() => setFavoritesMovies(null)} />
 			)}
 		</>
 	);
