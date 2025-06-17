@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import api from '../utils/axios';
 import type { Movie } from '../pages/Home';
+import { useAuth } from './AuthContext';
 
 interface FavoritesContextType {
   favorites: Movie[];
@@ -31,8 +32,15 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingMovies, setUpdatingMovies] = useState<Set<number>>(new Set());
+  const { isAuthenticated } = useAuth();
 
   const fetchFavorites = async () => {
+    if (!isAuthenticated) {
+      setFavorites([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await api.get('/movie/filter?favourits_movies=true');
       if (res.data.success) {
@@ -47,9 +55,11 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
 
   useEffect(() => {
     fetchFavorites();
-  }, []);
+  }, [isAuthenticated]); // Re-fetch when auth state changes
 
   const addFavorite = async (movieId: number) => {
+    if (!isAuthenticated) return;
+    
     // Optimistically update UI
     setUpdatingMovies(prev => new Set(prev).add(movieId));
     
@@ -71,6 +81,8 @@ export const FavoritesProvider = ({ children }: FavoritesProviderProps) => {
   };
 
   const removeFavorite = async (movieId: number) => {
+    if (!isAuthenticated) return;
+    
     // Optimistically update UI
     setUpdatingMovies(prev => new Set(prev).add(movieId));
     

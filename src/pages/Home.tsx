@@ -43,7 +43,6 @@ const Home = () => {
 	const [movies, setMovies] = useState<Movie[]>([]);
 	const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
 	const [topNmovies, setTopNmovies] = useState<Movie[]>([]);
-	const [favouriteMovies, setFavouriteMovies] = useState<Movie[]>([]);
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
 	const [genres, setGenres] = useState<GenreDetails[]>([]);
 	const [startIndex, setStartIndex] = useState(0);
@@ -59,7 +58,6 @@ const Home = () => {
 	const [genreIsLoading, setGenreIsLoading] = useState(false);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
 	const [topNmoviesLoading, setTopNmoviesLoading] = useState(true);
-	const [favouriteMoviesLoading, setFavouriteMoviesLoading] = useState(true);
 	const [selectedLandingPageMovie, setSelectedLandingPageMovie] = useState<Movie | null>(null);
 
 	const visibleCount = 6;
@@ -131,26 +129,11 @@ const Home = () => {
 		}
 	};
 
-	const fetchFavoriteMovies = async () => {
-		setFavouriteMoviesLoading(true);
-		try {
-			const res = await api.get('/movie/filter?favourits_movies=true');
-			if (res.data.success) {
-				setFavouriteMovies(res.data.data.movies);
-			}
-		} catch (error) {
-			console.error("Failed to fetch recommendations:", error);
-		} finally {
-			setFavouriteMoviesLoading(false);
-		}
-	};
-
 	useEffect(() => {
 		getAllMovies();
 		getAllGenre();
 		fetchRecommendations();
 		fetchTopNmovies();
-		fetchFavoriteMovies();
 	}, []);
 
 	useEffect(() => {
