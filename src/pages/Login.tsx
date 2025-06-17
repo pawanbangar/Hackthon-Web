@@ -177,7 +177,7 @@ const Login = () => {
 						</div>
 					</div>
 
-					<div
+					{/* <div
 						style={{
 							display: 'flex',
 							justifyContent: 'end',
@@ -189,7 +189,7 @@ const Login = () => {
 						<a href="#" style={{ color: '#007bff', textDecoration: 'none' }}>
 							Forgot password?
 						</a>
-					</div>
+					</div> */}
 
 					<button
 						type="submit"

@@ -59,6 +59,8 @@ const Home = () => {
 	const [genreIsLoading, setGenreIsLoading] = useState(false);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(true);
 	const [topNmoviesLoading, setTopNmoviesLoading] = useState(true);
+	const [historyRecommendationsLoading, setHistoryRecommendationsLoading] = useState(true);
+	const [historyBasedMovies, setHistoryBasedMovies] = useState<Movie[]>([]);
 	const [selectedLandingPageMovie, setSelectedLandingPageMovie] = useState<Movie | null>(null);
 	const { favorites } = useFavorites();
 	const [favouritsMovies , setFavoritesMovies] = useState<Movie | null>(null)
@@ -132,11 +134,26 @@ const Home = () => {
 		}
 	};
 
+	const fetchHistoryBasedRecommendations = async () => {
+		setHistoryRecommendationsLoading(true);
+		try {
+			const res = await api.get('/vector/recommendBasedOnHistory?k=15');
+			if (res.data.success) {
+				setHistoryBasedMovies(res.data.data);
+			}
+		} catch (error) {
+			console.error("Failed to fetch history-based recommendations:", error);
+		} finally {
+			setHistoryRecommendationsLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		getAllMovies();
 		getAllGenre();
 		fetchRecommendations();
 		fetchTopNmovies();
+		fetchHistoryBasedRecommendations();
 	}, []);
 
 	useEffect(() => {
@@ -535,6 +552,77 @@ const Home = () => {
 							))
 						) : (
 							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+						)}
+					</div>
+				</motion.div>
+				<motion.div
+					ref={recommendedRef}
+					style={{ padding: "30px", color: "white" }}
+					initial={{ opacity: 0, y: 50 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.6 }}
+				>
+					<motion.h2
+						initial={{ opacity: 0, x: -20 }}
+						whileInView={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.4 }}
+						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+					>
+						Based on Your History
+					</motion.h2>
+					<div
+						style={{
+							display: "flex",
+							gap: "15px",
+							overflowX: "auto",
+							overflowY: "hidden",
+							paddingBottom: "10px",
+							flexWrap: "nowrap",
+							scrollBehavior: "smooth",
+							scrollbarWidth: "none"
+						}}
+					>
+						{historyRecommendationsLoading ? (
+							<>
+								{Array.from({ length: 6 }).map((_, idx) => (
+									<div
+										key={idx}
+										style={{
+											width: "250px",
+											height: "350px",
+											borderRadius: "10px",
+											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+											backgroundSize: "200% 100%",
+											animation: "shimmer 1.5s infinite",
+										}}
+									></div>
+								))}
+								<style>
+									{`
+										@keyframes shimmer {
+											0% {
+												background-position: -200% 0;
+											}
+											100% {
+												background-position: 200% 0;
+											}
+										}
+									`}
+								</style>
+							</>
+						) : historyBasedMovies.length > 0 ? (
+							historyBasedMovies.map((movie, index) => (
+								<motion.div
+									key={`rec-${movie.movie_id}`}
+									initial={{ opacity: 0, x: 50 }}
+									whileInView={{ opacity: 1, x: 0 }}
+									transition={{ delay: index * 0.05, duration: 0.3 }}
+								>
+									<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+								</motion.div>
+							))
+						) : (
+							<div style={{ color: "white", padding: "20px" }}>No history-based recommendations available</div>
 						)}
 					</div>
 				</motion.div>
