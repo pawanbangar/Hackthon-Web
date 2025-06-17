@@ -31,7 +31,7 @@ const SearchResultsModal = ({
 		try {
 			const queryParam = search.trim() === "" ? "all" : search;
 			const res = await api.get(
-				`/vector/search?query=${queryParam}&page=${customPage}&page_size=${pageSize}`
+				`/vector/search?query=${queryParam}&page=${customPage}&page_size=${pageSize}&k=15`
 			);
 			const newMovies: Movie[] = res.data.data;
 			setResults(newMovies);

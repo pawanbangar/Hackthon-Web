@@ -107,7 +107,7 @@ const Home = () => {
 	const fetchRecommendations = async () => {
 		setRecommendationsLoading(true);
 		try {
-			const res = await api.get('/vector/recommend');
+			const res = await api.get('/vector/recommend?k=15');
 			if (res.data.success) {
 				setRecommendedMovies(res.data.data);
 			}
@@ -422,7 +422,33 @@ const Home = () => {
 						}}
 					>
 						{topNmoviesLoading ? (
-							<div style={{ color: "white", padding: "20px" }}>Loading recommendations...</div>
+							<>
+								{Array.from({ length: 6 }).map((_, idx) => (
+									<div
+										key={idx}
+										style={{
+											width: "250px",
+											height: "350px",
+											borderRadius: "10px",
+											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+											backgroundSize: "200% 100%",
+											animation: "shimmer 1.5s infinite",
+										}}
+									></div>
+								))}
+								<style>
+									{`
+										@keyframes shimmer {
+											0% {
+												background-position: -200% 0;
+											}
+											100% {
+												background-position: 200% 0;
+											}
+										}
+									`}
+								</style>
+							</>
 						) : topNmovies.length > 0 ? (
 							topNmovies.map((movie, index) => (
 								<motion.div
@@ -435,7 +461,7 @@ const Home = () => {
 								</motion.div>
 							))
 						) : (
-							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+							<div style={{ color: "white", padding: "20px" }}>No top 10 available</div>
 						)}
 					</div>
 				</motion.div>
@@ -469,7 +495,33 @@ const Home = () => {
 						}}
 					>
 						{recommendationsLoading ? (
-							<div style={{ color: "white", padding: "20px" }}>Loading recommendations...</div>
+							<>
+								{Array.from({ length: 6 }).map((_, idx) => (
+									<div
+										key={idx}
+										style={{
+											width: "250px",
+											height: "350px",
+											borderRadius: "10px",
+											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+											backgroundSize: "200% 100%",
+											animation: "shimmer 1.5s infinite",
+										}}
+									></div>
+								))}
+								<style>
+									{`
+										@keyframes shimmer {
+											0% {
+												background-position: -200% 0;
+											}
+											100% {
+												background-position: 200% 0;
+											}
+										}
+									`}
+								</style>
+							</>
 						) : recommendedMovies.length > 0 ? (
 							recommendedMovies.map((movie, index) => (
 								<motion.div
@@ -514,7 +566,33 @@ const Home = () => {
 						}}
 					>
 						{favorites.length === 0 ? (
-							<div style={{ color: "white", padding: "20px" }}>Loading favourite...</div>
+							<>
+								{Array.from({ length: 6 }).map((_, idx) => (
+									<div
+										key={idx}
+										style={{
+											width: "250px",
+											height: "350px",
+											borderRadius: "10px",
+											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+											backgroundSize: "200% 100%",
+											animation: "shimmer 1.5s infinite",
+										}}
+									></div>
+								))}
+								<style>
+									{`
+										@keyframes shimmer {
+											0% {
+												background-position: -200% 0;
+											}
+											100% {
+												background-position: 200% 0;
+											}
+										}
+									`}
+								</style>
+							</>
 						) : favorites.length > 0 ? (
 							favorites.map((movie, index) => (
 								<motion.div
