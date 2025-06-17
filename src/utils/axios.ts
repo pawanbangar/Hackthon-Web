@@ -32,8 +32,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
+      // Only redirect to login if we're not already on the login page
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

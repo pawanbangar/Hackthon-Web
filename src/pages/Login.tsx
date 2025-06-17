@@ -20,9 +20,43 @@ const Login = () => {
 
 	useEffect(() => {
 		if (isAuthenticated && !isLoading) {
-			navigate('/');
+			navigate('/', { replace: true });
 		}
 	}, [isAuthenticated, isLoading, navigate]);
+
+	if (isLoading) {
+		return (
+			<div
+				style={{
+					backgroundImage: `url("${background}")`,
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					minHeight: '100vh',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				}}
+			>
+				<div
+					style={{
+						width: '100%',
+						maxWidth: '400px',
+						background: '#fff',
+						borderRadius: '16px',
+						padding: '25px',
+						boxShadow: '0px 4px 20px rgba(0,0,0,0.15)',
+						textAlign: 'center'
+					}}
+				>
+					Loading...
+				</div>
+			</div>
+		);
+	}
+
+	if (isAuthenticated) {
+		return null;
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -34,7 +68,6 @@ const Login = () => {
 			if (loginResponse.success) {
 				notify('Login successful', 'success');
 				await login(loginResponse.data, true);
-
 			} else {
 				notify(loginResponse.message || 'Login failed', 'error');
 				setError(loginResponse.message || 'Login failed');
