@@ -47,7 +47,7 @@ const Home = () => {
 	const [selectedMovie, setSelectedMovie] = useState<Movie | null>();
 	const [genres, setGenres] = useState<GenreDetails[]>([]);
 	const [startIndex, setStartIndex] = useState(0);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isloading, setIsLoading] = useState(false);
 	const [selectedGenre, setSelectedGenre] = useState<GenreDetails | null>(null);
 	const [showFullOverview, setShowFullOverview] = useState(false);
 	const [genreMovies, setGenreMovies] = useState<Movie[]>([]);
@@ -62,8 +62,8 @@ const Home = () => {
 	const [historyRecommendationsLoading, setHistoryRecommendationsLoading] = useState(true);
 	const [historyBasedMovies, setHistoryBasedMovies] = useState<Movie[]>([]);
 	const [selectedLandingPageMovie, setSelectedLandingPageMovie] = useState<Movie | null>(null);
-	const { favorites } = useFavorites();
-	const [favouritsMovies , setFavoritesMovies] = useState<Movie | null>(null)
+	const { favorites, isLoading } = useFavorites();
+	const [favouritsMovies, setFavoritesMovies] = useState<Movie | null>(null)
 
 	const visibleCount = 6;
 
@@ -232,7 +232,7 @@ const Home = () => {
 						pointerEvents: "none",
 					}}
 				/>
-				{isLoading ? (
+				{isloading ? (
 					<div
 						style={{
 							display: "flex",
@@ -484,50 +484,51 @@ const Home = () => {
 				</motion.div>
 			</div>
 			<div style={{ backgroundColor: "black" }}>
-				<motion.div
-					ref={recommendedRef}
-					style={{ padding: "30px", color: "white" }}
-					initial={{ opacity: 0, y: 50 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
-				>
-					<motion.h2
-						initial={{ opacity: 0, x: -20 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						transition={{ duration: 0.4 }}
-						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+				{recommendedMovies.length > 0 &&
+					<motion.div
+						ref={recommendedRef}
+						style={{ padding: "30px", color: "white" }}
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}
 					>
-						Recommended for You
-					</motion.h2>
-					<div
-						style={{
-							display: "flex",
-							gap: "15px",
-							overflowX: "auto",
-							overflowY: "hidden",
-							paddingBottom: "10px",
-							flexWrap: "nowrap",
-							scrollBehavior: "smooth",
-							scrollbarWidth: "none"
-						}}
-					>
-						{recommendationsLoading ? (
-							<>
-								{Array.from({ length: 6 }).map((_, idx) => (
-									<div
-										key={idx}
-										style={{
-											width: "250px",
-											height: "350px",
-											borderRadius: "10px",
-											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
-											backgroundSize: "200% 100%",
-											animation: "shimmer 1.5s infinite",
-										}}
-									></div>
-								))}
-								<style>
-									{`
+						<motion.h2
+							initial={{ opacity: 0, x: -20 }}
+							whileInView={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.4 }}
+							style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+						>
+							Recommended for You
+						</motion.h2>
+						<div
+							style={{
+								display: "flex",
+								gap: "15px",
+								overflowX: "auto",
+								overflowY: "hidden",
+								paddingBottom: "10px",
+								flexWrap: "nowrap",
+								scrollBehavior: "smooth",
+								scrollbarWidth: "none"
+							}}
+						>
+							{recommendationsLoading ? (
+								<>
+									{Array.from({ length: 6 }).map((_, idx) => (
+										<div
+											key={idx}
+											style={{
+												width: "250px",
+												height: "350px",
+												borderRadius: "10px",
+												background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+												backgroundSize: "200% 100%",
+												animation: "shimmer 1.5s infinite",
+											}}
+										></div>
+									))}
+									<style>
+										{`
 										@keyframes shimmer {
 											0% {
 												background-position: -200% 0;
@@ -537,68 +538,70 @@ const Home = () => {
 											}
 										}
 									`}
-								</style>
-							</>
-						) : recommendedMovies.length > 0 ? (
-							recommendedMovies.map((movie, index) => (
-								<motion.div
-									key={`rec-${movie.movie_id}`}
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									transition={{ delay: index * 0.05, duration: 0.3 }}
-								>
-									<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
-								</motion.div>
-							))
-						) : (
-							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
-						)}
-					</div>
-				</motion.div>
-				<motion.div
-					ref={recommendedRef}
-					style={{ padding: "30px", color: "white" }}
-					initial={{ opacity: 0, y: 50 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
-				>
-					<motion.h2
-						initial={{ opacity: 0, x: -20 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						transition={{ duration: 0.4 }}
-						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+									</style>
+								</>
+							) : recommendedMovies.length > 0 ? (
+								recommendedMovies.map((movie, index) => (
+									<motion.div
+										key={`rec-${movie.movie_id}`}
+										initial={{ opacity: 0, x: 50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										transition={{ delay: index * 0.05, duration: 0.3 }}
+									>
+										<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+									</motion.div>
+								))
+							) : (
+								<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
+							)}
+						</div>
+					</motion.div>
+				}
+				{historyBasedMovies.length > 0 &&
+					<motion.div
+						ref={recommendedRef}
+						style={{ padding: "30px", color: "white" }}
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}
 					>
-						Based on Your History
-					</motion.h2>
-					<div
-						style={{
-							display: "flex",
-							gap: "15px",
-							overflowX: "auto",
-							overflowY: "hidden",
-							paddingBottom: "10px",
-							flexWrap: "nowrap",
-							scrollBehavior: "smooth",
-							scrollbarWidth: "none"
-						}}
-					>
-						{historyRecommendationsLoading ? (
-							<>
-								{Array.from({ length: 6 }).map((_, idx) => (
-									<div
-										key={idx}
-										style={{
-											width: "250px",
-											height: "350px",
-											borderRadius: "10px",
-											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
-											backgroundSize: "200% 100%",
-											animation: "shimmer 1.5s infinite",
-										}}
-									></div>
-								))}
-								<style>
-									{`
+						<motion.h2
+							initial={{ opacity: 0, x: -20 }}
+							whileInView={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.4 }}
+							style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+						>
+							Based on Your History
+						</motion.h2>
+						<div
+							style={{
+								display: "flex",
+								gap: "15px",
+								overflowX: "auto",
+								overflowY: "hidden",
+								paddingBottom: "10px",
+								flexWrap: "nowrap",
+								scrollBehavior: "smooth",
+								scrollbarWidth: "none"
+							}}
+						>
+							{historyRecommendationsLoading ? (
+								<>
+									{Array.from({ length: 6 }).map((_, idx) => (
+										<div
+											key={idx}
+											style={{
+												width: "250px",
+												height: "350px",
+												borderRadius: "10px",
+												background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+												backgroundSize: "200% 100%",
+												animation: "shimmer 1.5s infinite",
+											}}
+										></div>
+									))}
+									<style>
+										{`
 										@keyframes shimmer {
 											0% {
 												background-position: -200% 0;
@@ -608,68 +611,70 @@ const Home = () => {
 											}
 										}
 									`}
-								</style>
-							</>
-						) : historyBasedMovies.length > 0 ? (
-							historyBasedMovies.map((movie, index) => (
-								<motion.div
-									key={`rec-${movie.movie_id}`}
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									transition={{ delay: index * 0.05, duration: 0.3 }}
-								>
-									<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
-								</motion.div>
-							))
-						) : (
-							<div style={{ color: "white", padding: "20px" }}>No history-based recommendations available</div>
-						)}
-					</div>
-				</motion.div>
-				<motion.div
-					ref={favouriteRef}
-					style={{ padding: "30px", color: "white" }}
-					initial={{ opacity: 0, y: 50 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6 }}
-				>
-					<motion.h2
-						initial={{ opacity: 0, x: -20 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						transition={{ duration: 0.4 }}
-						style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+									</style>
+								</>
+							) : historyBasedMovies.length > 0 ? (
+								historyBasedMovies.map((movie, index) => (
+									<motion.div
+										key={`rec-${movie.movie_id}`}
+										initial={{ opacity: 0, x: 50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										transition={{ delay: index * 0.05, duration: 0.3 }}
+									>
+										<RecommendedCard movie={movie} onClick={() => setSelectedRecommendedMovie(movie)} />
+									</motion.div>
+								))
+							) : (
+								<div style={{ color: "white", padding: "20px" }}>No history-based recommendations available</div>
+							)}
+						</div>
+					</motion.div>
+				}
+				{favorites.length > 0 &&
+					<motion.div
+						ref={favouriteRef}
+						style={{ padding: "30px", color: "white" }}
+						initial={{ opacity: 0, y: 50 }}
+						whileInView={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6 }}
 					>
-						Favourite Movies
-					</motion.h2>
-					<div
-						style={{
-							display: "flex",
-							gap: "15px",
-							overflowX: "auto",
-							overflowY: "hidden",
-							paddingBottom: "10px",
-							flexWrap: "nowrap",
-							scrollBehavior: "smooth",
-							scrollbarWidth: "none"
-						}}
-					>
-						{favorites.length === 0 ? (
-							<>
-								{Array.from({ length: 6 }).map((_, idx) => (
-									<div
-										key={idx}
-										style={{
-											width: "250px",
-											height: "350px",
-											borderRadius: "10px",
-											background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
-											backgroundSize: "200% 100%",
-											animation: "shimmer 1.5s infinite",
-										}}
-									></div>
-								))}
-								<style>
-									{`
+						<motion.h2
+							initial={{ opacity: 0, x: -20 }}
+							whileInView={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.4 }}
+							style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "15px" }}
+						>
+							Favourite Movies
+						</motion.h2>
+						<div
+							style={{
+								display: "flex",
+								gap: "15px",
+								overflowX: "auto",
+								overflowY: "hidden",
+								paddingBottom: "10px",
+								flexWrap: "nowrap",
+								scrollBehavior: "smooth",
+								scrollbarWidth: "none"
+							}}
+						>
+							{isLoading ? (
+								<>
+									{Array.from({ length: 6 }).map((_, idx) => (
+										<div
+											key={idx}
+											style={{
+												width: "250px",
+												height: "350px",
+												borderRadius: "10px",
+												background: "linear-gradient(90deg, #1c1c1c 25%, #2c2c2c 50%, #1c1c1c 75%)",
+												backgroundSize: "200% 100%",
+												animation: "shimmer 1.5s infinite",
+											}}
+										></div>
+									))}
+									<style>
+										{`
 										@keyframes shimmer {
 											0% {
 												background-position: -200% 0;
@@ -679,24 +684,27 @@ const Home = () => {
 											}
 										}
 									`}
-								</style>
-							</>
-						) : favorites.length > 0 ? (
-							favorites.map((movie, index) => (
-								<motion.div
-									key={`rec-${movie.movie_id}`}
-									initial={{ opacity: 0, x: 50 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									transition={{ delay: index * 0.05, duration: 0.3 }}
-								>
-									<RecommendedCard movie={movie} onClick={() => setFavoritesMovies(movie)} />
-								</motion.div>
-							))
-						) : (
-							<div style={{ color: "white", padding: "20px" }}>No recommendations available</div>
-						)}
-					</div>
-				</motion.div>
+									</style>
+								</>
+							) : favorites.length > 0 ? (
+								favorites.map((movie, index) => (
+									<motion.div
+										key={`rec-${movie.movie_id}`}
+										initial={{ opacity: 0, x: 50 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										transition={{ delay: index * 0.05, duration: 0.3 }}
+									>
+										<RecommendedCard movie={movie} onClick={() => setFavoritesMovies(movie)} />
+									</motion.div>
+								))
+							) : (
+								<div style={{ color: "white", padding: "20px" }}>No Favourite Movies available</div>
+							)}
+						</div>
+					</motion.div>
+
+				}
+
 				{genres &&
 					<motion.div
 						ref={popularRef}
